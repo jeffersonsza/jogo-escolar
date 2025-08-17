@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Jogo de Associação - Mesopotâmia</title>
+    <title>Jogo de Associação - História</title>
     <style>
         * {
             box-sizing: border-box;
@@ -18,16 +18,18 @@
             -webkit-user-select: none;
             user-select: none;
         }
-        #start-screen, #game-screen, #result-screen {
-            padding: 15px;
-            margin: 10px auto;
+        #year-selection, #game-screen, #result-screen {
+            min-height: calc(100vh - 40px);
+            box-sizing: border-box;
+            padding: 20px;
+            margin: 15px auto;
             max-width: 100%;
             width: 100%;
             background-color: white;
             border-radius: 10px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
-        #game-screen, #result-screen {
+        #game-screen, #result-screen, #start-screen {
             display: none;
         }
         button {
@@ -42,8 +44,11 @@
             width: 80%;
             max-width: 300px;
         }
+        button.year-btn {
+            background-color: #2196F3;
+        }
         button:hover, button:active {
-            background-color: #45a049;
+            opacity: 0.9;
         }
         .drag-area {
             display: flex;
@@ -64,7 +69,7 @@
             gap: 8px;
         }
         .drag-item, .drop-slot {
-            width: calc(33% - 16px);
+            width: calc(10% - 16px);
             min-width: 150px;
             height: 150px;
             display: flex;
@@ -81,12 +86,11 @@
         .drag-item:active {
             transform: scale(0.95);
         }
-        drop-slot {
-    width: calc(50% - 16px);
-    min-width: 200px;
-    height: 200px;
-    /* restante do estilo permanece igual */
-}
+        .drop-slot {
+            width: calc(40% - 16px);
+            min-width: 200px;
+            height: 200px;
+        }
         .drop-slot.highlight {
             background-color: #ffe0b3;
         }
@@ -122,26 +126,40 @@
         h2 {
             font-size: 20px;
         }
-       @media (min-width: 600px) {
-    .drop-slot {
-        width: calc(40% - 16px);
-        height: 180px;
-    }
+        @media (min-width: 600px) {
+            .drop-slot {
+                width: calc(40% - 16px);
+                height: 180px;
+            }
         }
     </style>
 </head>
 <body>
 
-<!-- Tela Inicial -->
+<!-- Tela de Seleção de Ano -->
+<div id="year-selection">
+    <h1>JOGO DE ASSOCIAÇÃO HISTÓRICA</h1>
+    <p>ESCOLHA O ANO PARA JOGAR:</p>
+    <button class="year-btn" data-year="6">6º ANO</button>
+    <button class="year-btn" data-year="7">7º ANO</button>
+    <button class="year-btn" data-year="8">8º ANO</button>
+    <button class="year-btn" data-year="9">9º ANO</button>
+</div>
+
+<!-- Tela de Instruções -->
 <div id="start-screen">
-    <h1>Jogo de Associação</h1>
-    <p>Combine os itens corretamente! Você tem 3 vidas.</p>
+    <h1>JOGO DE ASSOCIAÇÃO</h1>
+    <p>COMBINE AS CARTAS. VOCÊ TEM 3 VIDAS.</p>
+    <p>INSTRUÇÕES:</p>
+    <p>1º Clique na carta. Clique no espaço abaixo das cartas.</p>
+    <p>2º Faça o mesmo com a carta que se associa a primeira.</p>
+    <p>Aqui é só um treino. Se você conseguir me mostrar o game concluído durante a aula receberá 3 pontos na média como prêmio.</p>
     <button id="start-button">Iniciar Jogo</button>
 </div>
 
 <!-- Tela do Jogo -->
 <div id="game-screen">
-    <h2>Combine os Itens</h2>
+    <h2 id="game-title">PREPARADO?</h2>
     <div class="lives" id="lives-container">
         <div class="life"></div>
         <div class="life"></div>
@@ -154,21 +172,25 @@
     <div class="drop-area" id="drop-container">
         <!-- Pares de dominó -->
     </div>
+	<button id="back-button" style="background-color: #f44336; margin-top: 20px;">Voltar para Anos</button>
 </div>
 
 <!-- Tela de Resultado -->
 <div id="result-screen">
     <h2 id="result-message"></h2>
     <button id="restart-button">Jogar Novamente</button>
+    <button id="back-to-years">Voltar para Anos</button>
 </div>
 
 <script>
-    // Dados do jogo (15 pares selecionados)
-
-const pairs = [
+    // Dados do jogo por ano (você pode preencher isso depois)
+    const gameData = {
+        "6": {
+            title: "6º ANO - MESOPOTÂMIA",
+            pairs: [
     { id: 1, itemA: "https://www.infoescola.com/wp-content/uploads/2008/10/escrita-cuneiforme.jpg", itemB: "Escrita dos sumérios", typeA: "image", typeB: "text" },
     { id: 2, itemA: "Código de Hamurábi", itemB: "Lei 'olho por olho'", typeA: "text", typeB: "text" },
-    { id: 3, itemA: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgCCzhP5jwetlH3YE337HktpWcyPSO0fYiLeDTs4GzGZStpCaKYa9Q-ApcZ2g412Rb1fv1V4gdu_caFcAXadDRrgsI8Z_Yh0-9ls2jsOZGqlg__ABRT-NCROlIPIsmMnYHhJjnc19QJ6KJ2pihY4Ud8IB0_hWqxFpkWwKQie1KSmgAhz-clnBw6IAF6/s684/FOTO.jpg", itemB: "Terra entre rios", typeA: "image", typeB: "text" },
+    { id: 3, itemA: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Tigr-euph-sv.png/250px-Tigr-euph-sv.png", itemB: "Terra entre rios", typeA: "image", typeB: "text" },
     { id: 4, itemA: "Fenícios", itemB: "Grandes navegadores", typeA: "text", typeB: "text" },
     { id: 5, itemA: "https://w7.pngwing.com/pngs/449/798/png-transparent-phoenician-alphabet-latin-alphabet-phoenician-alphabet-angle-white-english-thumbnail.png", itemB: "Primeiro alfabeto", typeA: "image", typeB: "text" },
     { id: 6, itemA: "Hebreus", itemB: "Povo do Êxodo", typeA: "text", typeB: "text" },
@@ -181,24 +203,139 @@ const pairs = [
     { id: 13, itemA: "Medos e Caldeus", itemB: " Conquistam o Império Assírio", typeA: "text", typeB: "text" },
     { id: 14, itemA: "Religião monoteísta", itemB: "Judaísmo", typeA: "text", typeB: "text" },
     { id: 15, itemA: "Purpura", itemB: "Símbolo de poder", typeA: "text", typeB: "text" }
-];
-   
+]
+        },
+        "7": {
+            title: "7º ANO - RENASCIMENTO, REFORMA E CONTRARREFORMA, FORMAÇÃO DOS ESTADOS NACIONAIS",
+            pairs: [
+    { id: 1, itemA: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/Mona_Lisa%2C_by_Leonardo_da_Vinci%2C_from_C2RMF_retouched.jpg/1200px-Mona_Lisa%2C_by_Leonardo_da_Vinci%2C_from_C2RMF_retouched.jpg", 
+itemB: "Mona Lisa - Obra de Leonardo da Vinci", typeA: "image", typeB: "text" },
+    { id: 2, itemA: "Humanismo", 
+itemB: "Valorização do ser humano e da razão", typeA: "text", typeB: "text" },
+    { id: 3, itemA: "https://ichef.bbci.co.uk/ace/ws/640/cpsprodpb/12E1A/production/_109283377_hi004172659.jpg.webp", 
+itemB: "Homem Vitruviano - Estudo das proporções", typeA: "image", typeB: "text" },
+    { id: 4, itemA: "Mecenas", 
+itemB: "Patrocinadores de artistas (como os Médici)", typeA: "text", typeB: "text" },
+    { id: 5, itemA: "Venda de Indulgências e Relíquias", 
+itemB:"Crítica que os reformadores faziam", typeA: "text", typeB: "text" },
+    { id: 6, itemA: "Galileu Galilei", 
+itemB: "Defensor do heliocentrismo", typeA: "text", typeB: "text" },
+    { id: 7, itemA: "Reforma Protestante", 
+itemB: "Movimento iniciado por Martinho Lutero", typeA: "text", typeB: "text" },
+    { id: 8, itemA: "Fragmentada", 
+itemB: "Estrutura de poder durante a Idade Média", typeA: "text", typeB: "text" },
+    { id: 9, itemA: "Perspectiva linear", 
+itemB: "Técnica para criar profundidade", typeA: "text", typeB: "text" },
+    { id: 10, itemA: "Culto a santos e 7 sacramentos", 
+itemB: "Catolicismo", typeA: "text", typeB: "text" },
+    { id: 11, itemA: "Contrarreforma", 
+itemB: "Movimento para conter a expansão do protestantismo", typeA: "text", typeB: "text" },
+    { id: 12, itemA: "Calvinismo", 
+itemB: "Teoria da predestinação", typeA: "text", typeB: "text" },
+    { id: 13, itemA: "Sfumato", 
+itemB: "Técnica de esfumar contornos", typeA: "text", typeB: "text" },
+    { id: 14, itemA: "Peste, guerras, + cidades e comércio ", 
+itemB: " Motivos que levaram a centralização política", typeA: "text", typeB: "text" },
+    { id: 15, itemA: "Antropocentrismo", 
+itemB: "Homem como centro do pensamento", typeA: "text", typeB: "text" },
+    { id: 16, itemA: "Reconquista, expulsão dos muçulmanos", 
+itemB: " Formação da Espanha", typeA: "text", typeB: "text" },
+    { id: 17, itemA: "Oeste centralizado, centro fragmentado, leste arcaico", 
+itemB: " O poder na Europa na Idade Moderna", typeA: "text", typeB: "text" },
+    { id: 18, itemA: "Absolutismo", 
+itemB: "Sistema em que o rei tem muito poder", typeA: "text", typeB: "text" }
+]
+
+        },
+        "8": {
+            title: "8º ANO - REVOLUÇÕES",
+            pairs: [
+    { id: 1, itemA: "Monarquia Absolutista", itemB: "Sistema de governo anterior a Revolução Francesa", typeA: "text", typeB: "text" },
+    { id: 2, itemA: "Queda da Bastilha (14/07/1789)", itemB: "Símbolo do fim do absolutismo e início da Revolução Francesa", typeA: "text", typeB: "text" },
+    { id: 3, itemA: "1º forma de governo pós 1789", itemB: "Monarquia Constitucional", typeA: "text", typeB: "text" },
+    { id: 4, itemA: "Voto censitário", itemB: "Sufrágio baseado em renda", typeA: "text", typeB: "text" },
+    { id: 5, itemA: "Convenção Nacional", itemB: "Governo revolucionário radical", typeA: "text", typeB: "text" },
+    { id: 6, itemA: "Girondinos", itemB: "Grupo que representava a alta burguesia", typeA: "text", typeB: "text" },
+    { id: 7, itemA: "Diretório", itemB: "Sistema de governo da república com 5 membros que formavam o governo", typeA: "text", typeB: "text" },
+    { id: 8, itemA: "Consulado", itemB: "Golpe da alta burguesia e dos militares deu início a esse sistema de governo", typeA: "text", typeB: "text" },
+    { id: 9, itemA: "Batalha de Trafalgar (1805)", itemB: "Derrota naval francesa para a Inglaterra", typeA: "text", typeB: "text" },
+    { id: 10, itemA: "Bloqueio Continental (1806)", itemB: "Napoleão proíbe comércio com a Inglaterra", typeA: "text", typeB: "text" },
+    { id: 11, itemA: "Bandeirantes", itemB: "Exploradores que encontraram ouro em 1690", typeA: "text", typeB: "text" },
+    { id: 12, itemA: "Guerra dos Emboabas (1707-1709)", itemB: "Conflito entre paulistas e forasteiros", typeA: "text", typeB: "text" },
+    { id: 13, itemA: "Fome", itemB: "Problema dos primeiros anos de mineração", typeA: "text", typeB: "text" },
+    { id: 14, itemA: "Capitação (1735)", itemB: "Imposto por escravo nas minas", typeA: "text", typeB: "text" },
+    { id: 15, itemA: "Derrama", itemB: "Cobrança forçada de impostos atrasados", typeA: "text", typeB: "text" },
+    { id: 16, itemA: "Revolta de Vila Rica (1720)", itemB: "Contra as Casas de Fundição", typeA: "text", typeB: "text" },
+    { id: 17, itemA: "Inconfidência Mineira (1789)", itemB: "Conspiração que desejava a independência de Minas Gerais", typeA: "text", typeB: "text" },
+    { id: 18, itemA: "Tratado de Methuen (1703)", itemB: "Portugal dependente da Inglaterra", typeA: "text", typeB: "text" },
+    { id: 19, itemA: "Marquês de Pombal", itemB: "Reformas no Brasil e em Portugal", typeA: "text", typeB: "text" },
+    { id: 20, itemA: "Invasões napoleônicas em Portugal", itemB: "Motivo da vinda da corte ao Brasil", typeA: "text", typeB: "text" }
+]
+        },
+        "9": {
+            title: "9º ANO - PÓS PRIMEIRA GUERRA MUNDIAL E PROCLAMAÇÃO DA REPÚBLICA",
+            pairs: [
+    { id: 1, itemA: "Liberalismo econômico", itemB: "Doutrina que defendia a autorregulação do mercado", typeA: "text", typeB: "text" },
+    { id: 2, itemA: "New Deal", itemB: "Programa de recuperação econômica implementado nos EUA", typeA: "text", typeB: "text" },
+    { id: 3, itemA: "EUA", itemB: "Principal potência econômica mundial no pós-guerra", typeA: "text", typeB: "text" },
+    { id: 4, itemA: "Queda da Bolsa de Nova York (1929)", itemB: "Evento que marcou o início da Grande Depressão", typeA: "text", typeB: "text" },
+    { id: 5, itemA: "Adolf Hitler", itemB: "Líder do Partido Nazista alemão", typeA: "text", typeB: "text" },
+    { id: 6, itemA: "Fascismo", itemB: "Ideologia autoritária, ultranacionalista, antiliberal e anticomunista", typeA: "text", typeB: "text" },
+    { id: 7, itemA: "American way of life", itemB: "Estilo de vida que associava consumo à felicidade e prosperidade", typeA: "text", typeB: "text" },
+    { id: 8, itemA: "Marcha sobre Roma (1922)", itemB: "Evento que consolidou o poder fascista na Itália", typeA: "text", typeB: "text" },
+    { id: 9, itemA: "Incêndio do Reichstag (1933)", itemB: "Evento que abriu caminho para a ditadura nazista", typeA: "text", typeB: "text" },
+    { id: 10, itemA: "Noite dos Cristais (1938)", itemB: "Pogrom contra judeus na Alemanha nazista", typeA: "text", typeB: "text" },    { id: 11, itemA: "Manifesto Republicano (1870)", itemB: "Documento fundador do Partido Republicano no Brasil", typeA: "text", typeB: "text" },
+    { id: 12, itemA: "Federalismo", itemB: "Principal bandeira dos republicanos paulistas", typeA: "text", typeB: "text" },
+    { id: 13, itemA: "Keynesianismo", itemB: "Defende a intervenção do Estado na economia, especialmente em momentos de crise", typeA: "text", typeB: "text" },
+    { id: 14, itemA: "Reforma pós-Guerra do Paraguai ", itemB: "Processo de modernização das forças armadas que criou uma nova geração de oficiais com aspirações políticas e críticas ao regime monárquico", typeA: "text", typeB: "text" },
+    { id: 15, itemA: "O Beneplácito Régio em questão ", itemB: "Mecanismo que exigia aprovação imperial para documentos papais, visto como interferência indevida", typeA: "text", typeB: "text" },
+    { id: 16, itemA: "Lenta e sem mudar as estruturas sociais", itemB: "Posição do império sobre a abolição da escravidão", typeA: "text", typeB: "text" },
+    { id: 17, itemA: "Conflito com a oligarquia cafeeira ", itemB: "Problema criado por causa da administração centralista de Deodoro da Fonseca", typeA: "text", typeB: "text" },
+    { id: 18, itemA: "Encilhamento", itemB: "Crise econômica causada pela emissão descontrolada de moeda e fraudes no mercado de capitais", typeA: "text", typeB: "text" },
+    { id: 19, itemA: "Revolta da Armada (1891)", itemB: "Setor monarquista ameaça bombardear o Rio de Janeiro devido ao fechamento do congresso", typeA: "text", typeB: "text" },
+]
+ },       
+    };
+
     // Elementos do DOM
+    const yearSelection = document.getElementById('year-selection');
     const startScreen = document.getElementById('start-screen');
     const gameScreen = document.getElementById('game-screen');
     const resultScreen = document.getElementById('result-screen');
     const resultMessage = document.getElementById('result-message');
+    const gameTitle = document.getElementById('game-title');
     const dragContainer = document.getElementById('drag-container');
     const dropContainer = document.getElementById('drop-container');
     const livesContainer = document.getElementById('lives-container');
     const startButton = document.getElementById('start-button');
     const restartButton = document.getElementById('restart-button');
+    const backToYearsButton = document.getElementById('back-to-years');
+    const yearButtons = document.querySelectorAll('.year-btn');
+const backButton = document.getElementById('back-button');
 
     // Variáveis do jogo
     let selectedItem = null;
     let dropSlots = [];
     let lives = 3;
     let correctPairs = 0;
+    let currentYear = "";
+    let currentPairs = [];
+
+    // Selecionar ano
+    yearButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            currentYear = button.dataset.year;
+            const yearData = gameData[currentYear];
+            
+            if (yearData) {
+                currentPairs = yearData.pairs;
+                gameTitle.textContent = yearData.title;
+                
+                yearSelection.style.display = 'none';
+                startScreen.style.display = 'block';
+            }
+        });
+    });
 
     // Iniciar o jogo
     startButton.addEventListener('click', () => {
@@ -215,6 +352,17 @@ const pairs = [
         resetGame();
         setupGame();
     });
+
+    // Voltar para seleção de anos
+    backToYearsButton.addEventListener('click', () => {
+        resultScreen.style.display = 'none';
+        yearSelection.style.display = 'block';
+    });
+
+backButton.addEventListener('click', () => {
+    gameScreen.style.display = 'none';
+    yearSelection.style.display = 'block';
+});
 
     function resetGame() {
         lives = 3;
@@ -255,7 +403,7 @@ const pairs = [
 
         // Criar lista com todos os itens
         let allItems = [];
-        pairs.forEach(pair => {
+        currentPairs.forEach(pair => {
             allItems.push(
                 { id: pair.id * 2, content: pair.itemA, type: pair.typeA, pairId: pair.id },
                 { id: pair.id * 2 + 1, content: pair.itemB, type: pair.typeB, pairId: pair.id }
@@ -285,33 +433,29 @@ const pairs = [
         });
 
         // Criar slots (metade do número de pares)
+        for (let i = 0; i < 4; i++) {
+            const dominoPair = document.createElement('div');
+            dominoPair.className = 'domino-pair';
 
+            const dropSlot1 = document.createElement('div');
+            dropSlot1.className = 'drop-slot';
+            dropSlot1.dataset.pairIndex = i;
 
+            const dropSlot2 = document.createElement('div');
+            dropSlot2.className = 'drop-slot';
+            dropSlot2.dataset.pairIndex = i;
 
-     {
-		const dominoPair = document.createElement('div');
-		dominoPair.className = 'domino-pair';
+            [dropSlot1, dropSlot2].forEach(slot => {
+                slot.addEventListener('click', () => tryPlaceItem(slot));
+                dropSlots.push(slot);
+            });
 
-		const dropSlot1 = document.createElement('div');
-		dropSlot1.className = 'drop-slot';
-		dropSlot1.dataset.pairIndex = 0;
-
-		const dropSlot2 = document.createElement('div');
-		dropSlot2.className = 'drop-slot';
-		dropSlot2.dataset.pairIndex = 1;
-
-		[dropSlot1, dropSlot2].forEach(slot => {
-   		 slot.addEventListener('click', () => tryPlaceItem(slot));
-   	 dropSlots.push(slot);
-});
-
-		dominoPair.appendChild(dropSlot1);
-		dominoPair.appendChild(dropSlot2);
-		dropContainer.appendChild(dominoPair);
-            
+            dominoPair.appendChild(dropSlot1);
+            dominoPair.appendChild(dropSlot2);
+            dropContainer.appendChild(dominoPair);
         }
     }
-
+    
     function shuffleArray(array) {
         for (let i = array.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
@@ -384,8 +528,7 @@ const pairs = [
                         correctPairs++;
                         
                         // Verificar vitória
-
-                        if (correctPairs >= pairs.length)  {
+                        if (correctPairs >= currentPairs.length) {
                             endGame(true);
                         }
                     }, 500);
