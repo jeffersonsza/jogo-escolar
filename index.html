@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Jogo de Associação - Mesopotâmia</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            touch-action: manipulation;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f8ff;
+            margin: 0;
+            padding: 10px;
+            text-align: center;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+        #start-screen, #game-screen, #result-screen {
+            padding: 15px;
+            margin: 10px auto;
+            max-width: 100%;
+            width: 100%;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        #game-screen, #result-screen {
+            display: none;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 18px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin: 10px;
+            width: 80%;
+            max-width: 300px;
+        }
+        button:hover, button:active {
+            background-color: #45a049;
+        }
+        .drag-area {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: 15px 0;
+            min-height: 100px;
+            border: 2px dashed #ccc;
+            padding: 10px;
+            border-radius: 5px;
+            gap: 8px;
+        }
+        .drop-area {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: 15px 0;
+            gap: 8px;
+        }
+        .drag-item, .drop-slot {
+            width: calc(33% - 16px);
+            min-width: 150px;
+            height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #e9f5ff;
+            border: 2px solid #aad4ff;
+            border-radius: 5px;
+            font-size: 14px;
+            text-align: center;
+            padding: 5px;
+            transition: transform 0.2s;
+        }
+        .drag-item:active {
+            transform: scale(0.95);
+        }
+        drop-slot {
+    width: calc(50% - 16px);
+    min-width: 200px;
+    height: 200px;
+    /* restante do estilo permanece igual */
+}
+        .drop-slot.highlight {
+            background-color: #ffe0b3;
+        }
+        .domino-pair {
+            display: flex;
+            width: 100%;
+            justify-content: center;
+            gap: 8px;
+            margin: 5px 0;
+        }
+        .drag-item img {
+            max-width: 90%;
+            max-height: 90%;
+        }
+        .lives {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 10px;
+        }
+        .life {
+            width: 30px;
+            height: 30px;
+            background-color: #ff6b6b;
+            border-radius: 50%;
+        }
+        .life.lost {
+            background-color: #ccc;
+        }
+        h1 {
+            font-size: 24px;
+        }
+        h2 {
+            font-size: 20px;
+        }
+       @media (min-width: 600px) {
+    .drop-slot {
+        width: calc(40% - 16px);
+        height: 180px;
+    }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Tela Inicial -->
+<div id="start-screen">
+    <h1>Jogo de Associação</h1>
+    <p>Combine os itens corretamente! Você tem 3 vidas.</p>
+    <button id="start-button">Iniciar Jogo</button>
+</div>
+
+<!-- Tela do Jogo -->
+<div id="game-screen">
+    <h2>Combine os Itens</h2>
+    <div class="lives" id="lives-container">
+        <div class="life"></div>
+        <div class="life"></div>
+        <div class="life"></div>
+    </div>
+    <div class="drag-area" id="drag-container">
+        <!-- Itens para selecionar -->
+    </div>
+    
+    <div class="drop-area" id="drop-container">
+        <!-- Pares de dominó -->
+    </div>
+</div>
+
+<!-- Tela de Resultado -->
+<div id="result-screen">
+    <h2 id="result-message"></h2>
+    <button id="restart-button">Jogar Novamente</button>
+</div>
+
+<script>
+    // Dados do jogo (15 pares selecionados)
+
+const pairs = [
+    { id: 1, itemA: "https://www.infoescola.com/wp-content/uploads/2008/10/escrita-cuneiforme.jpg", itemB: "Escrita dos sumérios", typeA: "image", typeB: "text" },
+    { id: 2, itemA: "Código de Hamurábi", itemB: "Lei 'olho por olho'", typeA: "text", typeB: "text" },
+    { id: 3, itemA: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgCCzhP5jwetlH3YE337HktpWcyPSO0fYiLeDTs4GzGZStpCaKYa9Q-ApcZ2g412Rb1fv1V4gdu_caFcAXadDRrgsI8Z_Yh0-9ls2jsOZGqlg__ABRT-NCROlIPIsmMnYHhJjnc19QJ6KJ2pihY4Ud8IB0_hWqxFpkWwKQie1KSmgAhz-clnBw6IAF6/s684/FOTO.jpg", itemB: "Terra entre rios", typeA: "image", typeB: "text" },
+    { id: 4, itemA: "Fenícios", itemB: "Grandes navegadores", typeA: "text", typeB: "text" },
+    { id: 5, itemA: "https://w7.pngwing.com/pngs/449/798/png-transparent-phoenician-alphabet-latin-alphabet-phoenician-alphabet-angle-white-english-thumbnail.png", itemB: "Primeiro alfabeto", typeA: "image", typeB: "text" },
+    { id: 6, itemA: "Hebreus", itemB: "Povo do Êxodo", typeA: "text", typeB: "text" },
+    { id: 7, itemA: "10 Mandamentos", itemB: "Leis hebraicas", typeA: "text", typeB: "text" },
+    { id: 8, itemA: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/31/The_Darius_seal._Darius_stands_in_a_royal_chariot_below_Ahura_Mazda_and_shoots_arrows_at_a_rampant_lion._From_Thebes%2C_Egypt._6th-5th_century_BCE._British_Museum_%28cropped%29.jpg/1920px-thumbnail.jpg", itemB: "Selo real persa", typeA: "image", typeB: "text" },
+    { id: 9, itemA: "Zigurate", itemB: "Templo em degraus", typeA: "text", typeB: "text" },
+    { id: 10, itemA: "Assírios", itemB: "Guerreiros cruéis", typeA: "text", typeB: "text" },
+    { id: 11, itemA: "Persia", itemB: "Império dividido em satrápias", typeA: "text", typeB: "text" },
+    { id: 12, itemA: "Povo que formou o 1º império da Mesopotâmia", itemB: "Acádios", typeA: "text", typeB: "text" },
+    { id: 13, itemA: "Medos e Caldeus", itemB: " Conquistam o Império Assírio", typeA: "text", typeB: "text" },
+    { id: 14, itemA: "Religião monoteísta", itemB: "Judaísmo", typeA: "text", typeB: "text" },
+    { id: 15, itemA: "Purpura", itemB: "Símbolo de poder", typeA: "text", typeB: "text" }
+];
+   
+    // Elementos do DOM
+    const startScreen = document.getElementById('start-screen');
+    const gameScreen = document.getElementById('game-screen');
+    const resultScreen = document.getElementById('result-screen');
+    const resultMessage = document.getElementById('result-message');
+    const dragContainer = document.getElementById('drag-container');
+    const dropContainer = document.getElementById('drop-container');
+    const livesContainer = document.getElementById('lives-container');
+    const startButton = document.getElementById('start-button');
+    const restartButton = document.getElementById('restart-button');
+
+    // Variáveis do jogo
+    let selectedItem = null;
+    let dropSlots = [];
+    let lives = 3;
+    let correctPairs = 0;
+
+    // Iniciar o jogo
+    startButton.addEventListener('click', () => {
+        startScreen.style.display = 'none';
+        gameScreen.style.display = 'block';
+        resetGame();
+        setupGame();
+    });
+
+    // Reiniciar o jogo
+    restartButton.addEventListener('click', () => {
+        resultScreen.style.display = 'none';
+        gameScreen.style.display = 'block';
+        resetGame();
+        setupGame();
+    });
+
+    function resetGame() {
+        lives = 3;
+        correctPairs = 0;
+        updateLivesDisplay();
+    }
+
+    function updateLivesDisplay() {
+        const lifeElements = document.querySelectorAll('.life');
+        lifeElements.forEach((life, index) => {
+            life.classList.toggle('lost', index >= lives);
+        });
+    }
+
+    function loseLife() {
+        lives--;
+        updateLivesDisplay();
+        
+        if (lives <= 0) {
+            endGame(false);
+        }
+    }
+
+    function endGame(success) {
+        gameScreen.style.display = 'none';
+        resultScreen.style.display = 'block';
+        resultMessage.textContent = success 
+            ? "Parabéns! Você completou todas as associações!" 
+            : "Tente novamente! Você errou 3 vezes.";
+    }
+
+    // Configurar o jogo
+    function setupGame() {
+        dragContainer.innerHTML = '';
+        dropContainer.innerHTML = '';
+        selectedItem = null;
+        dropSlots = [];
+
+        // Criar lista com todos os itens
+        let allItems = [];
+        pairs.forEach(pair => {
+            allItems.push(
+                { id: pair.id * 2, content: pair.itemA, type: pair.typeA, pairId: pair.id },
+                { id: pair.id * 2 + 1, content: pair.itemB, type: pair.typeB, pairId: pair.id }
+            );
+        });
+
+        // Embaralhar
+        allItems = shuffleArray(allItems);
+
+        // Adicionar itens arrastáveis
+        allItems.forEach(item => {
+            const dragItem = document.createElement('div');
+            dragItem.className = 'drag-item';
+            dragItem.dataset.id = item.id;
+            dragItem.dataset.pairId = item.pairId;
+
+            if (item.type === "image") {
+                const img = document.createElement('img');
+                img.src = item.content;
+                dragItem.appendChild(img);
+            } else {
+                dragItem.textContent = item.content;
+            }
+
+            dragItem.addEventListener('click', () => selectItem(dragItem));
+            dragContainer.appendChild(dragItem);
+        });
+
+        // Criar slots (metade do número de pares)
+
+
+
+     {
+		const dominoPair = document.createElement('div');
+		dominoPair.className = 'domino-pair';
+
+		const dropSlot1 = document.createElement('div');
+		dropSlot1.className = 'drop-slot';
+		dropSlot1.dataset.pairIndex = 0;
+
+		const dropSlot2 = document.createElement('div');
+		dropSlot2.className = 'drop-slot';
+		dropSlot2.dataset.pairIndex = 1;
+
+		[dropSlot1, dropSlot2].forEach(slot => {
+   		 slot.addEventListener('click', () => tryPlaceItem(slot));
+   	 dropSlots.push(slot);
+});
+
+		dominoPair.appendChild(dropSlot1);
+		dominoPair.appendChild(dropSlot2);
+		dropContainer.appendChild(dominoPair);
+            
+        }
+    }
+
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    }
+
+    function selectItem(item) {
+        // Desselecionar item anterior
+        document.querySelectorAll('.drag-item.selected').forEach(el => {
+            el.classList.remove('selected');
+        });
+        
+        // Selecionar novo item
+        selectedItem = item;
+        item.classList.add('selected');
+        
+        // Mostrar slots disponíveis
+        dropSlots.forEach(slot => {
+            if (!slot.hasChildNodes()) {
+                slot.classList.add('highlight');
+            }
+        });
+    }
+
+    function tryPlaceItem(slot) {
+        if (!selectedItem || slot.hasChildNodes()) return;
+
+        // Remover highlight
+        dropSlots.forEach(s => s.classList.remove('highlight'));
+
+        // Criar cópia do item
+        const clonedItem = selectedItem.cloneNode(true);
+        clonedItem.classList.remove('selected');
+        clonedItem.addEventListener('click', (e) => {
+            e.stopPropagation();
+            dragContainer.appendChild(clonedItem);
+            clonedItem.addEventListener('click', () => selectItem(clonedItem));
+        });
+
+        // Colocar no slot
+        slot.appendChild(clonedItem);
+        
+        // Remover original
+        selectedItem.remove();
+        selectedItem = null;
+
+        // Verificar se completou um par
+        checkPairs();
+    }
+
+    function checkPairs() {
+        // Verificar todos os pares de slots
+        for (let i = 0; i < dropSlots.length; i += 2) {
+            const slot1 = dropSlots[i];
+            const slot2 = dropSlots[i + 1];
+
+            // Se ambos slots estão preenchidos
+            if (slot1.firstChild && slot2.firstChild) {
+                const item1 = slot1.firstChild;
+                const item2 = slot2.firstChild;
+
+                // Verificar se é um par correto
+                if (item1.dataset.pairId === item2.dataset.pairId) {
+                    // Par correto - remover após 0.5s
+                    setTimeout(() => {
+                        slot1.removeChild(item1);
+                        slot2.removeChild(item2);
+                        correctPairs++;
+                        
+                        // Verificar vitória
+
+                        if (correctPairs >= pairs.length)  {
+                            endGame(true);
+                        }
+                    }, 500);
+                } else {
+                    // Par errado - perder vida após 1s
+                    setTimeout(() => {
+                        dragContainer.appendChild(item1);
+                        dragContainer.appendChild(item2);
+                        item1.addEventListener('click', () => selectItem(item1));
+                        item2.addEventListener('click', () => selectItem(item2));
+                        loseLife();
+                    }, 1000);
+                }
+            }
+        }
+    }
+</script>
+</body>
+</html>
