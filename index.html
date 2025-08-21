@@ -160,6 +160,7 @@
 <!-- Tela do Jogo -->
 <div id="game-screen">
     <h2 id="game-title">PREPARADO?</h2>
+    <div id="timer" style="font-size: 18px; margin: 10px;">Tempo: 00:00</div>
     <div class="lives" id="lives-container">
         <div class="life"></div>
         <div class="life"></div>
@@ -320,6 +321,10 @@ const backButton = document.getElementById('back-button');
     let correctPairs = 0;
     let currentYear = "";
     let currentPairs = [];
+    let startTime;
+    let timerInterval;
+    let elapsedTime = 0;
+
 
     // Selecionar ano
     yearButtons.forEach(button => {
@@ -364,6 +369,33 @@ backButton.addEventListener('click', () => {
     yearSelection.style.display = 'block';
 });
 
+// Função para iniciar o cronômetro
+    function startTimer() {
+    startTime = Date.now() - elapsedTime;
+    timerInterval = setInterval(updateTimer, 1000);
+}
+
+// Função para atualizar o cronômetro
+function updateTimer() {
+    elapsedTime = Date.now() - startTime;
+    const seconds = Math.floor((elapsedTime / 1000) % 60);
+    const minutes = Math.floor((elapsedTime / 1000 / 60) % 60);
+    document.getElementById('timer').textContent = `Tempo: ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+}
+
+// Função para parar o cronômetro
+function stopTimer() {
+    clearInterval(timerInterval);
+}
+
+// Função para resetar o cronômetro
+function resetTimer() {
+    stopTimer();
+    elapsedTime = 0;
+    document.getElementById('timer').textContent = 'Tempo: 00:00';
+}
+
+
     function resetGame() {
         lives = 3;
         correctPairs = 0;
@@ -387,11 +419,22 @@ backButton.addEventListener('click', () => {
     }
 
     function endGame(success) {
-        gameScreen.style.display = 'none';
-        resultScreen.style.display = 'block';
-        resultMessage.textContent = success 
-            ? "Parabéns! Você completou todas as associações!" 
-            : "Tente novamente! Você errou 3 vezes.";
+         stopTimer();
+    
+    gameScreen.style.display = 'none';
+    resultScreen.style.display = 'block';
+    
+    if (success) {
+        // Calcular o tempo decorrido formatado
+        const seconds = Math.floor((elapsedTime / 1000) % 60);
+        const minutes = Math.floor((elapsedTime / 1000 / 60) % 60);
+        const timeString = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        
+        // Mensagem com o ano e tempo
+        resultMessage.textContent = `Parabéns! Você completou a tarefa do ${currentYear}º ano em ${timeString}!`;
+    } else {
+        resultMessage.textContent = "Tente novamente! Você errou 3 vezes.";
+    }
     }
 
     // Configurar o jogo
@@ -401,6 +444,7 @@ backButton.addEventListener('click', () => {
         selectedItem = null;
         dropSlots = [];
 
+
         // Criar lista com todos os itens
         let allItems = [];
         currentPairs.forEach(pair => {
@@ -408,6 +452,7 @@ backButton.addEventListener('click', () => {
                 { id: pair.id * 2, content: pair.itemA, type: pair.typeA, pairId: pair.id },
                 { id: pair.id * 2 + 1, content: pair.itemB, type: pair.typeB, pairId: pair.id }
             );
+
         });
 
         // Embaralhar
@@ -454,6 +499,8 @@ backButton.addEventListener('click', () => {
             dominoPair.appendChild(dropSlot2);
             dropContainer.appendChild(dominoPair);
         }
+	resetTimer();
+        startTimer();
     }
     
     function shuffleArray(array) {
@@ -548,4 +595,3 @@ backButton.addEventListener('click', () => {
 </script>
 </body>
 </html>
-
