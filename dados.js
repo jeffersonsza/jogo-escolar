@@ -1,7 +1,7 @@
 
  const gameData = {
         "6": {
-            title: "6º ANO - tema 1 = MESOPOTÂMIA" ; tema 2 = PERSAS, HEBREUS E FENÍCIOS"
+            title: "6º ANO - TEMA 1 = MESOPOTÂMIA ; TEMA 2 = PERSAS, HEBREUS E FENÍCIOS",
             pairs: [
     { id: 1, itemA: "https://content.nationalgeographic.pt/medio/import/attachment/edicoesespeciais/HISTORIA/GrandesInvencoes/Escrita/c1.jpg", itemB: "Escrita dos sumérios", typeA: "image", typeB: "text", theme: 2 },
     { id: 2, itemA: "Código de Hamurabi", itemB: "Lei 'olho por olho'", typeA: "text", typeB: "text", theme: 2 },
@@ -71,7 +71,7 @@ itemB: "Sistema em que o rei tem muito poder", typeA: "text", typeB: "text", the
             }
         },
         "8": {
-            title: "8º ANO - REVOLUÇÕES",
+            title: "8º ANO - TEMA 1 = REVOLUÇÃO FRANCESA; TEMA 2 = CICLO DO OURO; TEMA 3 = PORTUGAL NA GEOPOLÍTICA EUROPEIA",
             pairs: [
     { id: 1, itemA: "Monarquia Absolutista", itemB: "Sistema de governo anterior a Revolução Francesa", typeA: "text", typeB: "text", theme: 1 },
     { id: 2, itemA: "Queda da Bastilha (14/07/1789)", itemB: "Símbolo do fim do absolutismo e início da Revolução Francesa", typeA: "text", typeB: "text", theme: 1 },
@@ -129,5 +129,6 @@ itemB: "Sistema em que o rei tem muito poder", typeA: "text", typeB: "text", the
             }
         }       
     };
+
 
 export default gameData;
