@@ -215,35 +215,45 @@ const tabuadaFuncoes = {
     },
 
     checkAnswer: function(answer) {
-        const { scoreElement, deck, resultElement } = this.elements;
-        
-        this.remainingCards--;
-        deck.querySelector('div').textContent = this.remainingCards;
-        
-        if (answer === this.correctAnswer) {
-            this.score++;
-            scoreElement.textContent = `${this.score}/${this.totalQuestions}`;
-            resultElement.textContent = this.correctAnswer;
-            this.remainingTime += 1.5;
-        } else {
-            this.remainingTime -= 1;
-            if (this.remainingTime < 0) this.remainingTime = 0;
-            resultElement.textContent = this.correctAnswer;
-        }
-        
-        this.updateTimeDisplay();
-        const percentage = (this.remainingTime / this.timeLimit) * 100;
-        this.elements.timerProgress.style.width = `${percentage}%`;
-        
-        if (this.score >= this.totalQuestions || this.remainingCards <= 0 || this.remainingTime <= 0) {
-            clearInterval(this.timerInterval);
-            this.endGame();
-            return;
-        }
-        
-        setTimeout(() => this.generateQuestion(), 1000);
-    },
-
+    const { scoreElement, deck, resultElement, optionsContainer } = this.elements;
+    
+    // Desabilitar todos os botões para evitar múltiplos cliques
+    const optionButtons = optionsContainer.querySelectorAll('.option');
+    optionButtons.forEach(button => {
+        button.disabled = true;
+        button.style.opacity = '0.6';
+        button.style.cursor = 'not-allowed';
+    });
+    
+    this.remainingCards--;
+    deck.querySelector('div').textContent = this.remainingCards;
+    
+    if (answer === this.correctAnswer) {
+        this.score++;
+        scoreElement.textContent = `${this.score}/${this.totalQuestions}`;
+        resultElement.textContent = this.correctAnswer;
+        this.remainingTime += 1.5;
+    } else {
+        this.remainingTime -= 1;
+        if (this.remainingTime < 0) this.remainingTime = 0;
+        resultElement.textContent = this.correctAnswer;
+    }
+    
+    this.updateTimeDisplay();
+    const percentage = (this.remainingTime / this.timeLimit) * 100;
+    this.elements.timerProgress.style.width = `${percentage}%`;
+    
+    if (this.score >= this.totalQuestions || this.remainingCards <= 0 || this.remainingTime <= 0) {
+        clearInterval(this.timerInterval);
+        this.endGame();
+        return;
+    }
+    
+    setTimeout(() => {
+        this.generateQuestion();
+        // Os botões serão reabilitados quando generateQuestion criar novos botões
+    }, 1000);
+},
     endGame: function() {
         const { gameScreen, resultScreen, resultMessage, resultStats, nextLevelBtn } = this.elements;
         
@@ -364,4 +374,5 @@ export function iniciarJogoTabuada() {
     setTimeout(() => {
         tabuadaFuncoes.init();
     }, 100);
+
 }
