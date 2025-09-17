@@ -23,6 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const botaoJogoModohistoria = document.getElementById ('botaojogomodohistoria');
     //tela dos tipos de jogo de matematica
     const botaoJogoDeTabuada = document.getElementById ('botaojogodetabuada');
+    const botaoJogoDeOperacoesComFracoes = document.getElementById('botaojogodeoperacoescomfracoes')
     const botaoJogoDeSomaeSubtracao = document.getElementById ('botaojogodesomaesubtracao');
     const botaoJogoDeMultiplicacao = document.getElementById ('botaojogodemultiplicacao');
     const botaoJogoDeDivisao = document.getElementById ('botaojogodedivisao');
@@ -156,4 +157,5 @@ retornarN3.forEach(botao => {
 
 
 });
+
 
