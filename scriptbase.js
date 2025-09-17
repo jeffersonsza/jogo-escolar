@@ -110,6 +110,11 @@ document.addEventListener('DOMContentLoaded', () => {
         modulo.iniciarJogoTabuada();    
     });
 
+    botaoJogoDeOperacoesComFracoes.addEventListener('click', async () => {
+        const modulo = await import(`./jogos/matematica/fracoes/fracoesbase.js`);
+        modulo.iniciarJogoDeOperacoesComFracoes();    
+    });
+
 retornarN1.forEach(botao => {
     botao.addEventListener('click', () => {
         // ✅ Converter NodeLists para arrays e concatenar
@@ -151,3 +156,4 @@ retornarN3.forEach(botao => {
 
 
 });
+
