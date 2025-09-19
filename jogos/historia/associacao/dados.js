@@ -305,22 +305,34 @@ export const dados3trimestre = {
 },
 
     "9ano": {
-         title: "Em Construção, aguarde novas atualizações",
+         title: "9 ANO: TEMA 1:COMO FUNCIONAVA A REPÚBLICA VELHA; TEMA 2: ELEMENTOS QUE DESGATARAM A REPÚBLICA VELHA ",
          pares: [ 
-            { id: 1, itemA: "", itemB: "", typeA: "text", typeB: "text", theme: 1 },
-            { id: 2, itemA: "", itemB: "", typeA: "text", typeB: "text", theme: 1 },
-            { id: 3, itemA: "", itemB: "", typeA: "text", typeB: "text", theme: 2 },
-            { id: 4, itemA: "", itemB: "", typeA: "text", typeB: "text", theme: 2 },
-            { id: 5, itemA: "", itemB: "", typeA: "text", typeB: "text", theme: 3 },
-        
+            { id: 1, itemA: "Cortou gastos, refinanciou a dívida, retirou dinheiro de circulação", itemB: "Medidas tomadas no governo Campos Sales para acabar com a crise econômica", typeA: "text", typeB: "text", theme: 1 },
+            { id: 2, itemA: "Política dos Governadores", itemB: "Pacto político em que o governo federal dava apoio financeiro e cargos em troca de apoio no Congresso", typeA: "text", typeB: "text", theme: 1 },
+            { id: 3, itemA: "Comissão de Verificação de Poderes", itemB: "Se um deputado da oposição fosse eleito, ela era usada para impedir sua posse", typeA: "text", typeB: "text", theme: 1 },
+            { id: 4, itemA: "Mesa eleitoral", itemB: "Dizia quem estava apto ou não a votar (alfabetizado), manipulando o processo eleitoral", typeA: "text", typeB: "text", theme: 1 },
+            { id: 5, itemA: "Voto de Cabresto", itemB: "Como ficou conhecido o conjunto de mecanismos que a classe dominante usava para ter controle sobre o sistema eleitoral", typeA: "text", typeB: "text", theme: 1 },
+            { id: 6, itemA: "Estados mais importantes da República Velha", itemB: "Minas Gerais e São Paulo", typeA: "text", typeB: "text", theme: 1 },
+            { id: 7, itemA: "Estados menos importantes, mas necessários para manter o pacto oligárquico", itemB: "Rio Grande do Sul, Pernambuco, Rio de Janeiro e Bahia", typeA: "text", typeB: "text", theme: 1 },
+            { id: 8, itemA: "O pacto intraoligárquico se baseava em", itemB: "Ampla autonomia aos estados, defesa dos interesses econômicos dos produtores de café e controle do voto", typeA: "text", typeB: "text", theme: 1 },
+            { id: 9, itemA: "Consequência do acúmulo de capitais com o café", itemB: "Investimentos na indústria e nas cidades, crescimento populacional urbano", typeA: "text", typeB: "text", theme: 2 },
+            { id: 10, itemA: "Ideologias que vieram com os imigrantes e encontraram eco na classe operária urbana", itemB: "Socialismo e anarquismo", typeA: "text", typeB: "text", theme: 2 },
+            { id: 12, itemA: "Maneira que os operários acharam para garantir alguma segurança frente à falta de direitos", itemB: "Sociedades de ajuda mútua", typeA: "text", typeB: "text", theme: 2 },
+            { id: 13, itemA: "Condições do trabalho fabril no início do século XX no Brasil", itemB: "Precariedade, jornadas de até 16h, trabalho infantil, inexistência de salário mínimo e de direitos trabalhistas", typeA: "text", typeB: "text", theme: 2 },
+            { id: 14, itemA: "Tenentismo", itemB: "Movimento de oficiais de baixa patente que queria, entre outras coisas, a purificação do sistema eleitoral", typeA: "text", typeB: "text", theme: 2 },
+            { id: 15, itemA: "Base intelectual do Tenentismo", itemB: "Positivismo", typeA: "text", typeB: "text", theme: 2 },
+            { id: 16, itemA: "18 do Forte", itemB: "Rebelião que acabou na luta de poucos soldados que marcharam contra um batalhão, e foram mortos, para defender uma ideia", typeA: "text", typeB: "text", theme: 2 },
+            { id: 17, itemA: "Coluna Prestes", itemB: "Grupo que lutou por todo o Brasil, usando táticas de guerrilha e guerra de movimento, percorrendo mais de 25 mil km", typeA: "text", typeB: "text", theme: 2 },
+            { id: 18, itemA: "Como os militares se viam", itemB: "Castra iluminada e isenta, cujo dever era moderar o regime quando este saía dos eixos", typeA: "text", typeB: "text", theme: 2 },
+            { id: 19, itemA: 'Consequência do crescimento das cidades', itemB:'Aumento do número de pessoas fora do controle do coronelismo', typeA:'text', typeB: 'text', theme:2}
         ],
     
 
     themes: {
-                1: "a",
-                2: "b"
+                1: "COMO FUNCIONAVA A REPÚBLICA VELHA",
+                2: "ELEMENTOS QUE DESGATARAM A REPÚBLICA VELHA"
             }
-}
+    }
 };
 
 export const dados4trimestre = {
@@ -397,4 +409,5 @@ export const dados4trimestre = {
             }
 }
 };
+
 
