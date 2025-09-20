@@ -130,6 +130,14 @@ document.addEventListener('DOMContentLoaded', () => {
         modulo.iniciarJogoDeOperacoesComFracoes();    
     });
 
+    botaoJogoDeSomaeSubtracao.addEventListener('click', async () => {
+        todosOsMenus.forEach(menu=>{
+            menu.style.display = 'none';
+        });
+        const modulo = await import(`./jogos/matematica/somaesubtracao/somaesubtracao.js`);
+        modulo.iniciarJogoDeSomaESubtração();    
+    });
+
 retornarN1.forEach(botao => {
     botao.addEventListener('click', () => {
         // ✅ Converter NodeLists para arrays e concatenar
