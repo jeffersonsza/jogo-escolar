@@ -802,7 +802,7 @@ function iniciarJogo() {
 
         resetTudo();
         jogoAtivo = true;
-        tempoRestante = 60;
+        tempoRestante = 30;
         mostrarTempo();
         iniciarTemporizador();
     };
@@ -1191,3 +1191,4 @@ function selecionarMultiplo(coluna, valor) {
         multiploSelecionado2 = valor;
     }
 }
+
