@@ -154,7 +154,7 @@ function selecionarModo(modo) {
                                 modo === 'subtracao-estudo' ? 'Modo estudo: subtração' : 'Modo desafio';
     
     if (modo === 'desafio') {
-        tempoRestante = 10;
+        tempoRestante = 240;
         pontuacao = 0;
         problemaAtual = 0;
         atualizarPontuacao();
@@ -784,6 +784,7 @@ function voltarParaSelecaoModo() {
     // Mostrar tela inicial
     mostrarTela(elementos.telaBemVindo);
 }
+
 
 
 
