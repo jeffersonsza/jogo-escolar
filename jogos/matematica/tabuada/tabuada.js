@@ -187,7 +187,7 @@ function configurarEventListeners() {
                 currentLevel = parseInt(e.key);
                 startGame();
             } else if (e.key === '0') {
-                currentLevel = 10;
+                currentLevel = 1;
                 startGame();
             }
         }
@@ -446,3 +446,4 @@ function shuffleArray(array) {
     }
     return array;
 }
+
