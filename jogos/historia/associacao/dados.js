@@ -228,10 +228,10 @@ export const dados3trimestre = {
             { id: 15, itemA: "Esparta", itemB: "Sociedade grega em que todo cidadão era criado para ser um guerreiro", typeA: "text", typeB: "text", theme: 2 },
             { id: 16, itemA: "Acrópole", itemB: "Parte alta e fortificada da cidade grega, onde ficavam os principais templos", typeA: "text", typeB: "text", theme: 3 },
             { id: 17, itemA: "Asty", itemB: "A área urbana da pólis grega, centro da vida cívica e do comércio", typeA: "text", typeB: "text", theme: 3 },
-            { id: 18, itemA: "Basileu", itemB: "Título do governante na Grécia Antiga, cujo poder era baseado em prestígio e liderança, não apenas na força", typeA: "text", itemB: "text", theme: 2 },
+            { id: 18, itemA: "Basileu", itemB: "Título do governante na Grécia Antiga, cujo poder era baseado em prestígio e liderança, não apenas na força", typeA: "text", typeB: "text", theme: 2 },
             { id: 19, itemA: "Agon", itemB: "Valor grego da competição, presente nos esportes, no teatro e na política", typeA: "text", typeB: "text", theme: 3 },
-            { id: 20, itemA: "Fim da Sociedade Micênica", itemB: "Provavelmente causado por problemas climáticos, revoltas internas e colapso do comércio", typeA: "text", itemB: "text", theme: 2 },
-            { id: 21, itemA: "Religião Cívica", itemB: "Prática de rituais e festivais coletivos que reforçavam a unidade da pólis", typeA: "text", itemB: "text", theme: 2 }
+            { id: 20, itemA: "Fim da Sociedade Micênica", itemB: "Provavelmente causado por problemas climáticos, revoltas internas e colapso do comércio", typeA: "text", typeB: "text", theme: 2 },
+            { id: 21, itemA: "Religião Cívica", itemB: "Prática de rituais e festivais coletivos que reforçavam a unidade da pólis", typeA: "text", typeB: "text", theme: 2 }
         ],
     
 
@@ -415,6 +415,7 @@ export const dados4trimestre = {
             }
 }
 };
+
 
 
 
