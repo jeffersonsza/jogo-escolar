@@ -209,7 +209,7 @@ itemB: "Sistema em que o rei tem muito poder", typeA: "text", typeB: "text", the
 export const dados3trimestre = {
 
     "6ano": {
-         title: "6 ANO TEMA1: POLÍTICA, ORGANIZAÇÕES DE ESTADO E DE GOVERNO, TEMA2: GRÉCIA ANTIGA",
+         title: "6 ANO TEMA1: POLÍTICA, ORGANIZAÇÕES DE ESTADO E DE GOVERNO, TEMA2: GRÉCIA ANTIGA; TEMA3: A PÓLIS GREGA",
          pares: [ 
             { id: 1, itemA: "Anacronismo", itemB: "Quando usamos elementos ou ideias de uma época em outra época", typeA: "text", typeB: "text", theme: 1 },
             { id: 2, itemA: "Democracia", itemB: "Governo de muitos, que governam pelo bem de todos", typeA: "text", typeB: "text", theme: 1 },
@@ -222,20 +222,26 @@ export const dados3trimestre = {
             { id: 9, itemA: "Império", itemB: "Unidade política, em que vários povos e regiões fazem parte", typeA: "text", typeB: "text", theme: 1 },
             { id: 10, itemA: "Reino", itemB: "Unidade política governado por um monarca", typeA: "text", typeB: "text", theme: 1 },
             { id: 11, itemA: "Cidade-estado", itemB: "Unidade política pequena que se restringe a uma cidade e seus arredores", typeA: "text", typeB: "text", theme: 1 },
-            { id: 12, itemA: "Ágora", itemB: " Lugar onde os gregos se reuniam para discutir e formular lei", typeA: "text", typeB: "text", theme: 2 },
+            { id: 12, itemA: "Ágora", itemB: " Lugar onde os gregos se reuniam para discutir e formular lei", typeA: "text", typeB: "text", theme: 3 },
             { id: 13, itemA: "Oikos", itemB: "Unidade familiar e econômica que surge no período Obscuro,Arcaico", typeA: "text", typeB: "text", theme: 2 },
             { id: 14, itemA: "Democracia Representativa", itemB: "Forma de governo em que se elege representantes", typeA: "text", typeB: "text", theme: 1 },
             { id: 15, itemA: "Esparta", itemB: "Sociedade grega em que todo cidadão era criado para ser um guerreiro", typeA: "text", typeB: "text", theme: 2 },
-        
+            { id: 16, itemA: "Acrópole", itemB: "Parte alta e fortificada da cidade grega, onde ficavam os principais templos", typeA: "text", typeB: "text", theme: 3 },
+            { id: 17, itemA: "Asty", itemB: "A área urbana da pólis grega, centro da vida cívica e do comércio", typeA: "text", typeB: "text", theme: 3 },
+            { id: 18, itemA: "Basileu", itemB: "Título do governante na Grécia Antiga, cujo poder era baseado em prestígio e liderança, não apenas na força", typeA: "text", itemB: "text", theme: 2 },
+            { id: 19, itemA: "Agon", itemB: "Valor grego da competição, presente nos esportes, no teatro e na política", typeA: "text", typeB: "text", theme: 3 },
+            { id: 20, itemA: "Fim da Sociedade Micênica", itemB: "Provavelmente causado por problemas climáticos, revoltas internas e colapso do comércio", typeA: "text", itemB: "text", theme: 2 },
+            { id: 21, itemA: "Religião Cívica", itemB: "Prática de rituais e festivais coletivos que reforçavam a unidade da pólis", typeA: "text", itemB: "text", theme: 2 }
         ],
     
 
     themes: {
                 1: "POLÍTICA, ORGANIZAÇÕES DE ESTADO E DE GOVERNO",
-                2: "GRÉCIA"
+                2: "GRÉCIA",
+                3: "A PÓLIS"
             }
 },
-
+    
     "7ano": {
          title: "7 ANO: TEMA 1: CONCEITOS BÁSICOS SOBRE AS GRANDES NAVEGAÇÕES, TEMA 2: NAVEGADORES E SUAS VIAGENS, TEMA3: CONSEQUÊNCIAS ",
          pares: [ 
@@ -409,5 +415,6 @@ export const dados4trimestre = {
             }
 }
 };
+
 
 
