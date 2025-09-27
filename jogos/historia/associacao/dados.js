@@ -231,7 +231,7 @@ export const dados3trimestre = {
             { id: 18, itemA: "Basileu", itemB: "Título do governante na Grécia Antiga, cujo poder era baseado em prestígio e liderança, não apenas na força", typeA: "text", typeB: "text", theme: 2 },
             { id: 19, itemA: "Agon", itemB: "Valor grego da competição, presente nos esportes, no teatro e na política", typeA: "text", typeB: "text", theme: 3 },
             { id: 20, itemA: "Fim da Sociedade Micênica", itemB: "Provavelmente causado por problemas climáticos, revoltas internas e colapso do comércio", typeA: "text", typeB: "text", theme: 2 },
-            { id: 21, itemA: "Religião Cívica", itemB: "Prática de rituais e festivais coletivos que reforçavam a unidade da pólis", typeA: "text", typeB: "text", theme: 2 }
+            { id: 21, itemA: "Chora", itemB: "Área rural da pólis", typeA: "text", typeB: "text", theme: 3 }
         ],
     
 
@@ -415,6 +415,7 @@ export const dados4trimestre = {
             }
 }
 };
+
 
 
 
