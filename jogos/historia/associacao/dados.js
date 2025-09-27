@@ -243,7 +243,7 @@ export const dados3trimestre = {
 },
     
     "7ano": {
-         title: "7 ANO: TEMA 1: CONCEITOS BÁSICOS SOBRE AS GRANDES NAVEGAÇÕES, TEMA 2: NAVEGADORES E SUAS VIAGENS, TEMA3: CONSEQUÊNCIAS ",
+         title: "7 ANO: TEMA 1: CONCEITOS BÁSICOS SOBRE AS GRANDES NAVEGAÇÕES, TEMA 2: NAVEGADORES E SUAS VIAGENS, TEMA3: CONSEQUÊNCIAS, TEMA4: BRASIL ",
          pares: [ 
             { id: 1, itemA: "Especiarias", itemB: "Produto de grande valor usado para dar sabor, como remédios, e para conservar alimentos", typeA: "text", typeB: "text", theme: 1 },
             { id: 2, itemA: "Périplo Africano", itemB: "Como ficou conhecido o contorno da África pelos Portugueses", typeA: "text", typeB: "text", theme: 1 },
@@ -257,7 +257,7 @@ export const dados3trimestre = {
             { id: 10, itemA: "Ásia", itemB: "Região mais rica e economicamente dinâmica do mundo na época das Grandes Nagações", typeA: "text", typeB: "text", theme: 1 },
             { id: 11, itemA: "Descobrimento", itemB: "Maneira Eurocêntrica de ver o contato, muitas vezes violento, entre europeus e outros povos", typeA: "text", typeB: "text", theme: 1 },
             { id: 12, itemA: "Fernão de Magalhães", itemB: "Navegador que iniciou a primeira volta ao mundo, mas morreu no meio do caminho", typeA: "text", typeB: "text", theme: 2 },
-            { id: 13, itemA: "Metalismo", itemB: "Visão e mundo que achava que ser rico era acumular ouro", typeA: "text", typeB: "text", theme: 1 },
+            { id: 13, itemA: "Metalismo", itemB: "Visão de mundo que achava que ser rico era acumular ouro", typeA: "text", typeB: "text", theme: 1 },
             { id: 14, itemA: "Corsário", itemB: "Navegador que tinha autorização de um governo para atacar navios de outro Estado", typeA: "text", typeB: "text", theme: 1 },
             { id: 15, itemA: "Tratado de Tordesilhas", itemB: "Dividia o mundo 'conquistado' entre Portugal e Espanha", typeA: "text", typeB: "text", theme: 1 },
             { id: 16, itemA: "Comércio naval pela costa da África", itemB: "Drenou as riquezas que antes atravessavam o deserto do Saara de camelo", typeA: "text", typeB: "text", theme: 3 },
@@ -265,14 +265,19 @@ export const dados3trimestre = {
             { id: 18, itemA: "Pedro Alvares Cabral", itemB: "Tomou posse do Brasil, mas foi cuidar de negócios nas Índias", typeA: "text", typeB: "text", theme: 2 },
             { id: 19, itemA: "Mercantilismo", itemB: "Teoria sobre a acumulação de riqueza, compreendia o metalismo, a balança comercial favorável e o exclusivo comercial com as colônias", typeA: "text", typeB: "text", theme: 1 },
             { id: 20, itemA: "Exploração, escravização e genocídio", itemB: "Consequência da colonização para muitos povos que entraram em contato com os europeus", typeA: "text", typeB: "text", theme: 3 },
-        
+            { id: 21, itemA: "Eurocentrismo", itemB: "Visão de mundo que coloca a Europa e sua cultura como o centro da história e como modelo superior", typeA: "text", typeB: "text", theme: 1 },
+            { id: 22, itemA: "Entre 1500 (viagem de Cabral) e 1532 (viagem de Martim Afonso e implatação do sistema de capitanias hereditárias)", itemB: "Fase de exploração de pau-brasil e patrulha do litoral, sem colonização efetiva", typeA: "text", typeB: "text", theme: 4 },
+            { id: 23, itemA: "Capitanias Hereditárias", itemB: "Grandes faixas de terra dada a nobres portugueses.Sistema que transferiu a tarefa e os custos da colonização do Brasil para particulares (donatários)", typeA: "text", typeB: "text", theme: 4 },
+            { id: 24, itemA: "Governo-Geral", itemB: "Medida da Coroa Portuguesa para centralizar o poder e auxiliar as capitanias, criada após o fracasso relativo do sistema", typeA: "text", typeB: "text", theme: 4 },
+            { id: 25, itemA: "Capitanias que prosperaram", itemB: "Pernambuco e São Vicente", typeA: "text", typeB: "text", theme: 4 }
         ],
     
 
     themes: {
                 1: "CONCEITOS BÁSICOS SOBRE AS GRANDES NAVEGAÇÕES",
                 2: "NAVEGADORES E SUAS VIAGENS",
-                3: "CONSEQUÊNCIAS"
+                3: "CONSEQUÊNCIAS",
+                4: "BRASIL"
             }
 },
 
@@ -415,6 +420,7 @@ export const dados4trimestre = {
             }
 }
 };
+
 
 
 
