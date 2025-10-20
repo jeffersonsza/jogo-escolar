@@ -304,7 +304,8 @@ function generateQuestion() {
         elements.fixedCard.textContent = currentMultiplier;
     }
     
-    currentValue = Math.floor(Math.random() * 10) + 1;
+    currentValue = Math.floor(Math.random() * 8) + 2;
+    
     correctAnswer = currentMultiplier * currentValue;
     
     elements.currentNumber.textContent = currentValue;
@@ -398,7 +399,7 @@ function checkAnswer(answer) {
         if (gameActive) {
             generateQuestion();
         }
-    }, 1000);
+    }, 800);
 }
 
 function desabilitarOpcoes(container) {
