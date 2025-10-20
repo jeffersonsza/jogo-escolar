@@ -1,5 +1,5 @@
 let elementos = {};
-let tempoRestante = 30;
+let tempoRestante = 150;
 let jogoAtivo = false;
 let intervaloTempo = null;
 
@@ -87,8 +87,22 @@ export function iniciarJogoDeOperacoesComFracoes() {
                 <p id="texto-tempo">Você tem 30s para terminar</p>
             </div>
             
-            <div class="divisao">
-                <div class="operacao" id="operacao-atual"></div>
+            <div class="operacao-completa">
+
+                 <div class="fracao">
+                     <div class="numerador" id="operacao-atual"></div>
+                     <div class="linha-fracao"></div>
+                     <div class="denominador" id="operacao-atual2"></div>
+                 </div>
+                <span id="operador-sem-mmc"></span>
+                <div class="fracao">
+                     <div class="numerador" id="operacao-atual3"></div>
+                     <div class="linha-fracao"></div>
+                     <div class="denominador" id="operacao-atual4"></div>
+                </div>
+                 
+                
+
             </div>
             
             <!-- Quiz -->
@@ -410,6 +424,9 @@ export function iniciarJogoDeOperacoesComFracoes() {
 
     elementos.novaOperacao = {
         operacaoAtual: document.getElementById('operacao-atual'),
+        operacaoAtual2: document.getElementById('operacao-atual2'),
+        operacaoAtual3: document.getElementById('operacao-atual3'),
+        operacaoAtual4: document.getElementById('operacao-atual4'),
         novaOperacao: document.getElementById('nova-operacao'),
         novoDen: document.getElementById('novo-den'),
         novoDen2: document.getElementById('novo-den2'),
@@ -802,7 +819,7 @@ function iniciarJogo() {
 
         resetTudo();
         jogoAtivo = true;
-        tempoRestante = 30;
+        tempoRestante = 150;
         mostrarTempo();
         iniciarTemporizador();
     };
@@ -844,7 +861,10 @@ function resetTudo() {
     elementos.quiz.quizContainer.style.display = 'block';
 
     // Reset da fatoração
-    elementos.novaOperacao.operacaoAtual.textContent = `${originalNum1} / ${originalDen1} ${operacaoSimbolo} ${originalNum2} / ${originalDen2}`;
+    elementos.novaOperacao.operacaoAtual.textContent = `${originalNum1}  `;
+    elementos.novaOperacao.operacaoAtual2.textContent = `${originalDen1} `;
+    elementos.novaOperacao.operacaoAtual3.textContent = `${originalNum2}  `;
+    elementos.novaOperacao.operacaoAtual4.textContent = `${originalDen2} `;
     elementos.fatoracao.linhasAdicionais.innerHTML = '';
     elementos.fatoracao.denom1Circulo.textContent = originalDen1;
     elementos.fatoracao.denom2Circulo.textContent = originalDen2;
