@@ -192,13 +192,7 @@ function configurarEventListeners() {
         });
     }
 
-    if (elements.deck) {
-        elements.deck.addEventListener('click', () => {
-            if (gameActive) {
-                generateEquation();
-            }
-        });
-    }
+
 
     // Atalhos de teclado para debug
     document.addEventListener('keydown', (e) => {
