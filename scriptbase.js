@@ -23,12 +23,17 @@ document.addEventListener('DOMContentLoaded', () => {
     //tela de escolha do tipo de jogo
     const botaoJogoDeAsociação = document.getElementById ('botaojogodeassociacao');
     const botaoJogoModohistoria = document.getElementById ('botaojogomodohistoria');
+    const botaoQuizSinglePlayer = document.getElementById ('botaoquizsingleplayer');
     //tela dos tipos de jogo de matematica
     const botaoJogoDeTabuada = document.getElementById ('botaojogodetabuada');
     const botaoJogoDeOperacoesComFracoes = document.getElementById('botaojogodeoperacoescomfracoes');
     const botaoJogoDeSomaeSubtracao = document.getElementById ('botaojogodesomaesubtracao');
     const botaoJogoDeMultiplicacao = document.getElementById ('botaojogodemultiplicacao');
     const botaoJogoDeDivisao = document.getElementById ('botaojogodedivisao');
+    botaoEquacoesBasicas = document.getElementById ('botaoequacaobasica');
+    botaoEquacoesAvancadas = document.getElementById ('botaoequacaoavancada');
+
+
     //tela de escolha dos anos
     const botao6Ano  = document.getElementById ('botao6ano');
     const botao7Ano  = document.getElementById ('botao7ano');
@@ -113,6 +118,14 @@ document.addEventListener('DOMContentLoaded', () => {
         modulo.iniciarJogo(selecao);
     });
 
+    botaoQuizSinglePlayer.addEventListener('click', async () => {
+        todosOsMenus.forEach(menu => {
+            menu.style.display = 'none';
+        });              
+        const modulo = await import(`./jogos/historia/quiz/quiz-singleplayer.js`);
+        modulo.iniciarJogo(selecao);
+    });
+
     botaoJogoDeTabuada.addEventListener('click', async () => {
 
         todosOsMenus.forEach(menu=>{
@@ -120,6 +133,23 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         const modulo = await import(`./jogos/matematica/tabuada/tabuada.js`);
         modulo.iniciarJogoTabuada();    
+    });
+
+    botaoEquacoesBasicas.addEventListener('click', async () => {
+        todosOsMenus.forEach(menu => {
+            menu.style.display = 'none';
+        });
+        const modulo = await import(`./jogos/matematica/equacoes/equacaobasica.js`);
+        modulo.iniciarJogoEquacoesNivel1a5();    
+    });
+
+    // Para o jogo de níveis 6-10
+    botaoEquacoesAvancadas.addEventListener('click', async () => {
+        todosOsMenus.forEach(menu => {
+            menu.style.display = 'none';
+        });
+        const modulo = await import(`./jogos/matematica/equacoes/equacaoavancada.js`);
+        modulo.iniciarJogoEquacoesNivel6a10();    
     });
 
     botaoJogoDeOperacoesComFracoes.addEventListener('click', async () => {
