@@ -9,7 +9,7 @@ function carregarCSSEquacoes() {
 let baseTimeLimit = 40;
 let correctAnswer = null;
 let correctAnswerFraction = null;
-let currentLevel = 10;
+let currentLevel = 6;
 let currentEquation = null;
 let gameActive = false;
 let remainingEquations = 20;
@@ -828,3 +828,4 @@ function endGame() {
         elements.nextLevelBtn.style.display = venceu && currentLevel < 10 ? 'block' : 'none';
     }
 }
+
