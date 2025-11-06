@@ -192,13 +192,7 @@ function configurarEventListeners() {
         });
     }
 
-    if (elements.deck) {
-        elements.deck.addEventListener('click', () => {
-            if (gameActive) {
-                generateEquation();
-            }
-        });
-    }
+
 
     // Atalhos de teclado para debug
     document.addEventListener('keydown', (e) => {
@@ -679,4 +673,5 @@ function endGame() {
     if (elements.nextLevelBtn) {
         elements.nextLevelBtn.style.display = venceu && currentLevel < 5 ? 'block' : 'none';
     }
+
 }
