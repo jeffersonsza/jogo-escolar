@@ -6,7 +6,7 @@ function carregarCSSTabuada() {
 }
 
 // Variáveis globais
-let baseTimeLimit = 25;
+let baseTimeLimit = 26;
 let correctAnswer = null;
 let currentLevel = 1;
 let currentMultiplier = 2;
@@ -15,7 +15,7 @@ let gameActive = false;
 let remainingCards = 20;
 let remainingTime = null;
 let score = 0;
-let timeLimit = 25;
+let timeLimit = 26;
 let timerInterval = null;
 let totalQuestions = 20;
 let nivelConfigurado = 1; // Nova variável para nível configurado
@@ -633,5 +633,6 @@ function shuffleArray(array) {
     }
     return array;
 }
+
 
 
