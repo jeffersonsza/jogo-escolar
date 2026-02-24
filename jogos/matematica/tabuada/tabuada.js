@@ -217,6 +217,7 @@ function startGame() {
 function reiniciarJogo() {
     if (confirm('Reiniciar o jogo? Seu progresso será perdido.')) {
         limparTimer();
+        gameActive = false;
         startGame();
     }
 }
@@ -439,6 +440,7 @@ function shuffleArray(array) {
     }
     return array;
 }
+
 
 
 
