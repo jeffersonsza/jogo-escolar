@@ -84,7 +84,6 @@ export function iniciarJogoEquacoesNivel1a5() {
                     <p>Resolva as equações antes que o tempo acabe e passe de nível</p>
                     <p>Será apresentada uma equação de primeiro grau que você precisa resolver</p>
                     <p>Abaixo, escolha a alternativa correta para o valor de x</p>
-                    <p>Pense rápido ou o tempo irá acabar!</p>
                     <p>Dica: Use operações inversas para isolar a variável x</p>
                 </div>
                 <button class="btn" id="start-btn">Começar</button>
@@ -675,3 +674,4 @@ function endGame() {
     }
 
 }
+
