@@ -370,7 +370,7 @@ function verificar() {
     
     const correctanswer = d + "8936";
     
-    if (correctanswer === correctanswer) {
+    if (senhaDigitada === correctanswer) {
   
         fecharModalSenha();
         elements.levelModal.classList.remove('hidden');
@@ -633,4 +633,5 @@ function shuffleArray(array) {
     }
     return array;
 }
+
 
