@@ -55,7 +55,6 @@ export function iniciarJogoTabuada() {
                     <p>Acerte as tabuadas antes que o tempo acabe e passe de nível</p>
                     <p>Vai aparecer a tabuada correspondente ao nível do lado esquerdo e no lado direito a carta que o baralho irá virar</p>
                     <p>Abaixo, escolha a alternativa correta</p>
-                    <p>Pense rápido ou o tempo irá acabar</p>
                 </div>
                 
                 <!-- Botão de configuração ao lado do Começar -->
@@ -634,3 +633,4 @@ function shuffleArray(array) {
     }
     return array;
 }
+
