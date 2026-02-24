@@ -272,3 +272,81 @@
                 align-items: center;
             }
         }
+
+        .btn-config {
+    background: linear-gradient(145deg, #6c5ce7, #a463f5);
+    color: white;
+}
+
+.btn-config:hover {
+    background: linear-gradient(145deg, #5b4bc4, #8c4ed4);
+    transform: translateY(-2px);
+}
+
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+}
+
+.modal .modal-content {
+    background: white;
+    padding: 30px;
+    border-radius: 20px;
+    max-width: 400px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
+.password-input {
+    width: 100%;
+    padding: 12px;
+    margin: 15px 0;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    font-size: 16px;
+    text-align: center;
+}
+
+.password-hint {
+    color: #666;
+    font-size: 0.9em;
+    margin: 5px 0 15px 0;
+    font-style: italic;
+}
+
+.level-buttons {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+    margin: 20px 0;
+}
+
+.level-btn {
+    padding: 15px;
+    font-size: 18px;
+    font-weight: bold;
+    border: none;
+    border-radius: 10px;
+    background: linear-gradient(145deg, #3498db, #2980b9);
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.level-btn:hover {
+    transform: scale(1.05);
+    background: linear-gradient(145deg, #2980b9, #3498db);
+}
+
+.modal.hidden {
+    display: none;
+}
