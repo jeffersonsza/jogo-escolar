@@ -84,8 +84,6 @@ export function iniciarJogoEquacoesNivel6a10() {
                     <p>Resolva equações complexas antes que o tempo acabe</p>
                     <p>Será apresentada uma equação de primeiro grau que você precisa resolver</p>
                     <p>Abaixo, escolha a alternativa correta para o valor de x</p>
-                    <p>Pense rápido ou o tempo irá acabar!</p>
-                    <p>Dica: Use operações inversas para isolar a variável x</p>
                 </div>
                 <button class="btn" id="start-btn">Começar</button>
             </div>
@@ -828,4 +826,5 @@ function endGame() {
         elements.nextLevelBtn.style.display = venceu && currentLevel < 10 ? 'block' : 'none';
     }
 }
+
 
