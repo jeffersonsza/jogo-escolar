@@ -46,7 +46,10 @@ export function iniciarJogoTabuada() {
     
     document.body.innerHTML = ` 
     <div class="jogo-container">
+        <div class="btncontainer">
         <button id="restart-btn" class="btn btn-warning hidden">🔄 Reiniciar</button>
+        <button class="voltar menor">Voltar para o menu</button>
+        </div>
         
         <div class="container">
             <div class="screen" id="welcome-screen">
@@ -110,7 +113,7 @@ export function iniciarJogoTabuada() {
                 </div>
             </div>
 
-            <button class="voltar btn">Voltar para o menu</button>
+            
 
             <div class="screen hidden" id="result-screen">
                 <h2 class="result-title" id="result-message">Parabéns!</h2>
@@ -633,6 +636,7 @@ function shuffleArray(array) {
     }
     return array;
 }
+
 
 
 
