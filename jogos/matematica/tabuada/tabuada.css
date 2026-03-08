@@ -59,6 +59,29 @@
             transition: all 0.3s;
             margin-top: 20px;
         }
+
+       
+        .btncontainer {
+
+            display: flex;
+            justify-content: space-between; /* Um na esquerda, outro na direita */
+            align-items: center;
+            width: 100%;
+
+        }
+        
+        .menor {
+            padding: 12px 30px;
+            background-color: #fc2c25;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.0rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 20px;
+        }
         
         .btn:hover {
             background-color: #0b5ed7;
@@ -350,3 +373,4 @@
 .modal.hidden {
     display: none;
 }
+
