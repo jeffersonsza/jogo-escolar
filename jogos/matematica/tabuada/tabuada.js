@@ -19,6 +19,9 @@ let timeLimit = 26;
 let timerInterval = null;
 let totalQuestions = 20;
 let nivelConfigurado = 1; // Nova variável para nível configurado
+let pageVisible = true;
+let timeWhenHidden = 0;
+let abaTrocada = false;
 
 // Elementos do DOM
 let elements = null;
@@ -243,10 +246,15 @@ export function iniciarJogoTabuada() {
     }, 100);
 }
 
+// Modificar a função init para incluir a detecção
 function init() {
     configurarNiveis();
     configurarElementosDOM();
     configurarEventListeners();
+    
+    // ATIVAR SISTEMA ANTI-BURLA (SEM AVISOS)
+    setupVisibilityDetection();
+    
     window.tabuada = { currentLevel, score, remainingTime, gameActive };
 }
 
@@ -402,9 +410,11 @@ function selecionarNivel(nivel) {
     }
 }
 
+// Modificar a função startGame para resetar a variável de trapaça
 function startGame() {
     limparTimer();
     gameActive = true;
+    abaTrocada = false; // Resetar variável de trapaça
     
     elements.welcomeScreen.classList.add('hidden');
     elements.resultScreen.classList.add('hidden');
@@ -413,7 +423,7 @@ function startGame() {
     
     // Usar o nível configurado
     const config = levelConfigs[nivelConfigurado];
-    currentLevel = nivelConfigurado; // Garantir que currentLevel está sincronizado
+    currentLevel = nivelConfigurado;
     
     totalQuestions = config.totalCards;
     timeLimit = Math.floor(baseTimeLimit * config.timeMultiplier);
@@ -635,6 +645,98 @@ function shuffleArray(array) {
         [array[i], array[j]] = [array[j], array[i]];
     }
     return array;
+}
+
+// Detectar quando a página fica visível ou escondida
+function setupVisibilityDetection() {
+    // Para navegadores desktop
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    // Para tablets/Android (quando muda de app)
+    window.addEventListener('blur', () => handleVisibilityChangeHidden());
+    window.addEventListener('focus', () => handleVisibilityChangeVisible());
+    
+    // Para quando o app vai para background no celular
+    window.addEventListener('pagehide', () => handleVisibilityChangeHidden());
+    window.addEventListener('pageshow', (event) => {
+        if (event.persisted) {
+            handleVisibilityChangeVisible();
+        }
+    });
+    
+    console.log('✅ Sistema anti-burla ativado (reinício silencioso)');
+}
+
+function handleVisibilityChange() {
+    if (document.hidden) {
+        handleVisibilityChangeHidden();
+    } else {
+        handleVisibilityChangeVisible();
+    }
+}
+
+function handleVisibilityChangeHidden() {
+    if (!gameActive) return;
+    
+    console.log('⚠️ Aluno trocou de aba - marcando para reinício');
+    timeWhenHidden = Date.now();
+    abaTrocada = true;
+}
+
+function handleVisibilityChangeVisible() {
+    if (!gameActive || !abaTrocada) return;
+    
+    const tempoAusente = (Date.now() - timeWhenHidden) / 1000;
+    
+    console.log(`🔄 Aluno voltou após ${tempoAusente.toFixed(1)}s - REINICIANDO NÍVEL`);
+    
+    // REINICIAR O NÍVEL ATUAL SILENCIOSAMENTE
+    reiniciarNivelAtual();
+    
+    abaTrocada = false;
+}
+
+// Função para reiniciar o nível atual (sem mensagens)
+function reiniciarNivelAtual() {
+    // Parar o jogo atual
+    gameActive = false;
+    limparTimer();
+    
+    // Reiniciar o MESMO nível imediatamente
+    iniciarNivelAtual();
+}
+
+// Função para iniciar o nível atual (mesmo nível, cartas novas)
+function iniciarNivelAtual() {
+    gameActive = true;
+    abaTrocada = false;
+    
+    // Usar o nível atual
+    const config = levelConfigs[currentLevel];
+    
+    totalQuestions = config.totalCards;
+    timeLimit = Math.floor(baseTimeLimit * config.timeMultiplier);
+    
+    // Resetar pontuação e cartas
+    score = 0;
+    remainingCards = totalQuestions;
+    remainingTime = timeLimit;
+    
+    // Atualizar interface
+    elements.scoreElement.textContent = `${score}/${totalQuestions}`;
+    elements.deck.querySelector('div').textContent = remainingCards;
+    updateTimeDisplay();
+    elements.timerProgress.style.width = '100%';
+    elements.timerProgress.style.backgroundColor = '#20c997';
+    
+    // Atualizar informações do nível
+    updateLevelInfo();
+    
+    // Gerar nova questão
+    generateQuestion();
+    
+    // Reiniciar timer
+    startTimer();
 }
 
 
