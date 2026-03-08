@@ -22,6 +22,7 @@ let nivelConfigurado = 1; // Nova variável para nível configurado
 let pageVisible = true;
 let timeWhenHidden = 0;
 let abaTrocada = false;
+const SAVE_KEY = 'tabuada_game_state';
 
 // Elementos do DOM
 let elements = null;
@@ -246,13 +247,23 @@ export function iniciarJogoTabuada() {
     }, 100);
 }
 
-// Modificar a função init para incluir a detecção
+
 function init() {
     configurarNiveis();
     configurarElementosDOM();
     configurarEventListeners();
     
-    // ATIVAR SISTEMA ANTI-BURLA (SEM AVISOS)
+    // Verificar se há jogo do mesmo dia
+    const nivelSalvo = verificarJogoSalvo();
+    
+    if (nivelSalvo) {
+        // Se encontrou jogo do mesmo dia, perguntar se quer continuar
+        if (confirm(`🎮 Você tem um jogo do dia de hoje no nível ${nivelSalvo}.\n\nDeseja começar um novo jogo no nível ${nivelSalvo}?`)) {
+            iniciarJogoNoNivel(nivelSalvo);
+        }
+        // Se não quiser, fica na tela de welcome para escolher
+    }
+    
     setupVisibilityDetection();
     
     window.tabuada = { currentLevel, score, remainingTime, gameActive };
@@ -411,28 +422,33 @@ function selecionarNivel(nivel) {
 }
 
 // Modificar a função startGame para resetar a variável de trapaça
+
 function startGame() {
     limparTimer();
     gameActive = true;
     abaTrocada = false; // Resetar variável de trapaça
+
+    
+    localStorage.removeItem(SAVE_KEY); // Limpar referência anterior
     
     elements.welcomeScreen.classList.add('hidden');
     elements.resultScreen.classList.add('hidden');
     elements.gameScreen.classList.remove('hidden');
     if (elements.restartBtn) elements.restartBtn.classList.remove('hidden');
     
-    // Usar o nível configurado
     const config = levelConfigs[nivelConfigurado];
     currentLevel = nivelConfigurado;
     
     totalQuestions = config.totalCards;
     timeLimit = Math.floor(baseTimeLimit * config.timeMultiplier);
     
+    // ZERAR TUDO
     score = 0;
     remainingCards = totalQuestions;
+    remainingTime = timeLimit;
+    
     elements.scoreElement.textContent = `${score}/${totalQuestions}`;
     elements.deck.querySelector('div').textContent = remainingCards;
-    remainingTime = timeLimit;
     updateTimeDisplay();
     elements.timerProgress.style.width = '100%';
     elements.timerProgress.style.backgroundColor = '#20c997';
@@ -440,6 +456,8 @@ function startGame() {
     updateLevelInfo();
     generateQuestion();
     startTimer();
+    
+    salvarEstadoJogo(); // Salvar apenas o nível
 }
 
 function reiniciarJogo() {
@@ -613,6 +631,11 @@ function endGame() {
     gameActive = false;
     limparTimer();
     
+    // SÓ limpa se terminou o jogo (não por fechar)
+    if (score >= totalQuestions || remainingTime <= 0.1) {
+        localStorage.removeItem(SAVE_KEY);
+    }
+    
     elements.gameScreen.classList.add('hidden');
     elements.resultScreen.classList.remove('hidden');
     if (elements.restartBtn) elements.restartBtn.classList.add('hidden');
@@ -741,4 +764,88 @@ function iniciarNivelAtual() {
 
 
 
+// ============================================
+// SOLUÇÃO: APENAS REINICIAR NÍVEL, NUNCA RESTAURAR PROGRESSO
+// ============================================
 
+
+// Função para salvar estado (APENAS para verificar data, NÃO para restaurar progresso)
+function salvarEstadoJogo() {
+    if (!gameActive) return;
+    
+    const hoje = new Date().toDateString(); // "Fri Mar 08 2026"
+    
+    const estado = {
+        currentLevel: currentLevel,  // Só salva o nível, não o progresso
+        data: hoje,
+        timestamp: Date.now()
+    };
+    
+    localStorage.setItem(SAVE_KEY, JSON.stringify(estado));
+    console.log('💾 Nível salvo para referência:', estado);
+}
+
+// Função para verificar se pode iniciar o jogo
+function verificarJogoSalvo() {
+    const savedState = localStorage.getItem(SAVE_KEY);
+    if (!savedState) return false;
+    
+    try {
+        const estado = JSON.parse(savedState);
+        const hoje = new Date().toDateString();
+        
+        // Verificar se é do mesmo dia
+        if (estado.data === hoje) {
+            return estado.currentLevel; // Retorna o nível salvo
+        } else {
+            // Se for de outro dia, limpar
+            localStorage.removeItem(SAVE_KEY);
+            return false;
+        }
+    } catch (e) {
+        return false;
+    }
+}
+
+// Função para iniciar o jogo (sempre começa do zero no nível)
+function iniciarJogoNoNivel(nivel) {
+    // SEMPRE começa do zero no nível
+    gameActive = true;
+    
+    elements.welcomeScreen.classList.add('hidden');
+    elements.resultScreen.classList.add('hidden');
+    elements.gameScreen.classList.remove('hidden');
+    if (elements.restartBtn) elements.restartBtn.classList.remove('hidden');
+    
+    const config = levelConfigs[nivel];
+    currentLevel = nivel;
+    nivelConfigurado = nivel;
+    
+    totalQuestions = config.totalCards;
+    timeLimit = Math.floor(baseTimeLimit * config.timeMultiplier);
+    
+    // ZERAR TUDO - sempre começa do início do nível
+    score = 0;
+    remainingCards = totalQuestions;
+    remainingTime = timeLimit;
+    
+    // Atualizar interface
+    elements.scoreElement.textContent = `${score}/${totalQuestions}`;
+    elements.deck.querySelector('div').textContent = remainingCards;
+    updateTimeDisplay();
+    elements.timerProgress.style.width = '100%';
+    elements.timerProgress.style.backgroundColor = '#20c997';
+    
+    updateLevelInfo();
+    generateQuestion();
+    startTimer();
+    
+    // Salvar nível (apenas para referência)
+    salvarEstadoJogo();
+}
+
+window.addEventListener('beforeunload', () => {
+    if (gameActive) {
+        salvarEstadoJogo(); // Salva APENAS o nível, não o progresso
+    }
+});
