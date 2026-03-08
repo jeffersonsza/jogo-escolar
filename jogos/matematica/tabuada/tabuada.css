@@ -234,7 +234,7 @@
             border: none;
             border-radius: 10px;
             padding: 12px;
-            font-size: 1.3rem;
+            font-size: 1.5rem;
             font-weight: bold;
             cursor: pointer;
             transition: all 0.3s;
@@ -373,4 +373,5 @@
 .modal.hidden {
     display: none;
 }
+
 
