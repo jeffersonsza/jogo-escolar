@@ -1205,7 +1205,13 @@ function checkAnswer(answer) {
         remainingCards--;
         elements.scoreElement.textContent = `${score}/${totalQuestions}`;
         elements.resultElement.textContent = correctAnswer;
-        remainingTime += currentLevel === 10 ? 2.5 : 1.5;
+        
+        // Bônus diferenciado por nível
+        if (currentLevel >= 8 && currentLevel <= 10) {
+            remainingTime += 1.7; // Níveis 8, 9 e 10 ganham 1,7s
+        } else {
+            remainingTime += 1.5; // Demais níveis ganham 1,5s
+        }
     } else {
         remainingTime = Math.max(0.1, remainingTime - 2);
         elements.resultElement.textContent = correctAnswer;
