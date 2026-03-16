@@ -5,7 +5,9 @@ function carregarCSSTabuada() {
     document.head.appendChild(link);
 }
 
-// Variáveis globais
+// ============================================
+// VARIÁVEIS GLOBAIS
+// ============================================
 let baseTimeLimit = 26;
 let correctAnswer = null;
 let currentLevel = 1;
@@ -25,17 +27,29 @@ let timeWhenHidden = 0;
 let abaTrocada = false;
 const SAVE_KEY = 'tabuada_game_state';
 const STATS_KEY = 'tabuada_statistics';
+const MAX_HISTORICO = 100;
+const MIN_RESPOSTAS_PARA_SALVAR = 10;
 
-// NOVAS VARIÁVEIS PARA ESTATÍSTICAS
+// Variáveis de estatísticas
 let questionStartTime = null;
 let questionStats = [];
 let currentQuestionNumber = 0;
+
+// Variáveis de identificação do aluno
+let alunoAno = null;
+let alunoLetra = null;
+let alunoNumero = null;
+const ANOS = ['6º', '7º', '8º', '9º'];
+const LETRAS = ['A', 'B', 'C', 'D', 'E', 'F'];
+const NUMEROS = Array.from({ length: 40 }, (_, i) => (i + 1).toString());
 
 // Elementos do DOM
 let elements = null;
 let levelConfigs = null;
 
-// Configurações de nível
+// ============================================
+// CONFIGURAÇÕES DE NÍVEL
+// ============================================
 function configurarNiveis() {
     levelConfigs = {
         1: { multipliers: [2], totalCards: 20, timeMultiplier: 1, description: "Tabuada do 2" },
@@ -51,45 +65,81 @@ function configurarNiveis() {
     };
 }
 
-// Função principal exportada
+// ============================================
+// FUNÇÃO PRINCIPAL
+// ============================================
 export function iniciarJogoTabuada() {
     carregarCSSTabuada();
     
     document.body.innerHTML = ` 
     <div class="jogo-container">
         <div class="btncontainer">
-        <button id="restart-btn" class="btn btn-warning hidden">🔄 Reiniciar</button>
-        <button id="vptabuada-btn" class="btn btn-warning hidden">Voltar para tabuada</button>
-        <button class="voltar menor">Voltar para jogos</button>
+            <button id="restart-btn" class="btn btn-warning hidden">🔄 Reiniciar</button>
+            <button id="vptabuada-btn" class="btn btn-warning hidden">Voltar para tabuada</button>
+            <button class="voltar menor">Voltar para jogos</button>
         </div>
         
         <div class="container">
+            <!-- TELA DE BOAS-VINDAS COM IDENTIFICAÇÃO -->
             <div class="screen" id="welcome-screen">
                 <h1>Bem vindo ao jogo da tabuada</h1>
+                
+                <!-- IDENTIFICAÇÃO DO ALUNO -->
+                <div class="aluno-identificacao">
+                    <h3>📋 Identifique-se</h3>
+                    
+                    <div class="selector-row">
+                        <div class="selector-group">
+                            <label>Ano:</label>
+                            <div class="selector-buttons" id="ano-selector">
+                                ${ANOS.map(ano => `<button class="ano-btn" data-ano="${ano}">${ano}</button>`).join('')}
+                            </div>
+                        </div>
+                        
+                        <div class="selector-group">
+                            <label>Turma:</label>
+                            <div class="selector-buttons" id="letra-selector" style="display: none;">
+                                ${LETRAS.map(letra => `<button class="letra-btn" data-letra="${letra}">${letra}</button>`).join('')}
+                            </div>
+                        </div>
+                        
+                        <div class="selector-group">
+                            <label>N° Chamada:</label>
+                            <div class="selector-buttons" id="numero-selector" style="display: none;">
+                                <div class="numero-grid">
+                                    ${NUMEROS.map(num => `<button class="numero-btn" data-numero="${num}">${num}</button>`).join('')}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="aluno-info" class="aluno-info" style="display: none;">
+                        ✅ Aluno: <span id="aluno-ano-display"></span> <span id="aluno-letra-display"></span> - N° <span id="aluno-numero-display"></span>
+                    </div>
+                </div>
+                
                 <div class="instructions">
                     <p>Acerte as tabuadas antes que o tempo acabe e passe de nível</p>
                     <p>Vai aparecer a tabuada correspondente ao nível do lado esquerdo e no lado direito a carta que o baralho irá virar</p>
                     <p>Abaixo, escolha a alternativa correta</p>
                 </div>
                 
-                <!-- Botão de configuração ao lado do Começar -->
                 <div style="display: flex; gap: 10px; justify-content: center; margin-bottom: 15px;">
                     <button class="btn" id="start-btn">Começar</button>
                     <button class="btn btn-config" id="config-btn">⚙️ Configurar</button>
                 </div>
                 
-                <!-- Botão para ver estatísticas salvas -->
                 <div style="display: flex; gap: 10px; justify-content: center; margin-bottom: 15px;">
                     <button class="btn btn-stats" id="view-stats-btn">📊 Ver Estatísticas</button>
                 </div>
                 
-                <!-- Indicador de nível e tempo configurados -->
                 <div id="config-indicator" style="display: none; color: #28a745; font-weight: bold; margin-top: 10px;">
                     Nível: <span id="selected-level">1</span> | 
                     Tempo: <span id="selected-time">26</span>s por questão
                 </div>
             </div>
             
+            <!-- TELA DO JOGO -->
             <div class="screen hidden" id="game-screen">
                 <div class="game-info">
                     <div class="info-box">
@@ -126,22 +176,21 @@ export function iniciarJogoTabuada() {
                     </div>
                 </div>
                 
-                <div class="options" id="options">
-                    <!-- As opções serão geradas pelo JavaScript -->
-                </div>
+                <div class="options" id="options"></div>
             </div>
 
+            <!-- TELA DE RESULTADO -->
             <div class="screen hidden" id="result-screen">
                 <h2 class="result-title" id="result-message">Parabéns!</h2>
                 <p class="result-stats" id="result-stats">Você acertou 20 de 20 cartas!</p>
                 <div class="result-buttons">
                     <button class="btn" id="play-again">Jogar Novamente</button>
                     <button class="btn btn-success" id="next-level">Próximo Nível</button>
-                    <button class="btn btn-stats" id="view-level-stats">📊 Ver Estatísticas do Nível</button>
+                    <button class="btn btn-stats" id="view-level-stats">📊 Estatísticas deste jogo</button>
                 </div>
             </div>
             
-            <!-- TELA: Estatísticas do Nível -->
+            <!-- TELA DE ESTATÍSTICAS DO JOGO -->
             <div class="screen hidden" id="stats-screen">
                 <h2 class="stats-title">📊 Estatísticas do Nível <span id="stats-level">1</span></h2>
                 
@@ -165,43 +214,25 @@ export function iniciarJogoTabuada() {
                 </div>
                 
                 <div class="stats-legend">
-                    <div class="legend-item">
-                        <div class="legend-color" style="background: #28a745;"></div>
-                        <span>Acerto (mais rápido que a média)</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background: #17a2b8;"></div>
-                        <span>Acerto (dentro da média)</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background: #ffc107;"></div>
-                        <span>Acerto (mais lento que a média)</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background: #dc3545;"></div>
-                        <span>Erro</span>
-                    </div>
+                    <div class="legend-item"><div class="legend-color" style="background: #28a745;"></div><span>Acerto rápido</span></div>
+                    <div class="legend-item"><div class="legend-color" style="background: #17a2b8;"></div><span>Acerto médio</span></div>
+                    <div class="legend-item"><div class="legend-color" style="background: #ffc107;"></div><span>Acerto lento</span></div>
+                    <div class="legend-item"><div class="legend-color" style="background: #dc3545;"></div><span>Erro</span></div>
                 </div>
                 
-                <div class="stats-list" id="stats-list">
-                    <!-- As estatísticas serão inseridas aqui -->
-                </div>
+                <div class="stats-list" id="stats-list"></div>
                 
                 <div class="stats-buttons">
                     <button class="btn" id="back-to-result-stats">← Voltar para Resultado</button>
                     <button class="btn" id="back-to-history-stats">← Voltar para Histórico</button>
-                    <button class="btn btn-stats" id="save-stats-btn">💾 Salvar Estatísticas</button>
-                    <button class="btn btn-warning" id="clear-stats-btn">🗑️ Limpar</button>
                 </div>
             </div>
             
-            <!-- TELA: Histórico de Estatísticas -->
+            <!-- TELA DE HISTÓRICO COMPLETO -->
             <div class="screen hidden" id="history-screen">
                 <h2 class="stats-title">📚 Histórico de Jogos</h2>
                 
-                <div class="history-list" id="history-list">
-                    <!-- O histórico será inserido aqui -->
-                </div>
+                <div class="history-list" id="history-list"></div>
                 
                 <div class="stats-buttons">
                     <button class="btn" id="back-to-welcome">Voltar ao Menu</button>
@@ -224,7 +255,7 @@ export function iniciarJogoTabuada() {
         </div>
     </div>
 
-    <!-- MODAL PARA CONFIGURAÇÕES (NÍVEL E TEMPO) -->
+    <!-- MODAL PARA CONFIGURAÇÕES -->
     <div id="config-modal" class="modal hidden">
         <div class="modal-content" style="max-width: 500px;">
             <h3>⚙️ Configurações do Jogo</h3>
@@ -246,9 +277,6 @@ export function iniciarJogoTabuada() {
                     <button id="increase-time" class="time-control-btn">+</button>
                     <span style="font-size: 16px; color: #666;">segundos</span>
                 </div>
-                <p style="font-size: 14px; color: #666; margin-top: 10px;">
-                    Valor recomendado: 26s (padrão) | Mínimo: 5s | Máximo: 120s
-                </p>
             </div>
             
             <div style="display: flex; gap: 15px; justify-content: center; margin: 25px 0 10px;">
@@ -259,300 +287,18 @@ export function iniciarJogoTabuada() {
     </div>
     `;
 
-    // Adicionar CSS adicional para os modais e estatísticas
-    const style = document.createElement('style');
-    style.textContent = `
-        .btn-config, .btn-stats {
-            background: linear-gradient(145deg, #6c5ce7, #a463f5);
-            color: white;
-        }
-
-        .btn-stats {
-            background: linear-gradient(145deg, #00b894, #00cec9);
-        }
-
-        .btn-config:hover, .btn-stats:hover {
-            transform: translateY(-2px);
-        }
-
-        .modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 2000;
-        }
-
-        .modal .modal-content {
-            background: white;
-            padding: 30px;
-            border-radius: 20px;
-            max-width: 400px;
-            width: 90%;
-            text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-        }
-
-        .password-input {
-            width: 100%;
-            padding: 12px;
-            margin: 15px 0;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            font-size: 16px;
-            text-align: center;
-        }
-
-        .level-buttons {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 10px;
-            margin: 20px 0;
-        }
-
-        .level-btn {
-            padding: 15px;
-            font-size: 18px;
-            font-weight: bold;
-            border: none;
-            border-radius: 10px;
-            background: linear-gradient(145deg, #3498db, #2980b9);
-            color: white;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .level-btn:hover {
-            transform: scale(1.05);
-            background: linear-gradient(145deg, #2980b9, #3498db);
-        }
-        
-        .level-btn.selected {
-            background: linear-gradient(145deg, #27ae60, #2ecc71);
-            box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.3);
-        }
-
-        .time-control-btn {
-            width: 40px;
-            height: 40px;
-            font-size: 24px;
-            font-weight: bold;
-            border: none;
-            border-radius: 10px;
-            background: linear-gradient(145deg, #6c5ce7, #a463f5);
-            color: white;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .time-control-btn:hover {
-            transform: scale(1.1);
-        }
-
-        .time-input {
-            width: 80px;
-            height: 40px;
-            text-align: center;
-            font-size: 20px;
-            font-weight: bold;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            padding: 5px;
-        }
-
-        .time-input:focus {
-            outline: none;
-            border-color: #6c5ce7;
-        }
-
-        .modal.hidden {
-            display: none;
-        }
-
-        /* Estilos para estatísticas */
-        .stats-title {
-            text-align: center;
-            color: #2c3e50;
-            margin-bottom: 30px;
-            font-size: 28px;
-        }
-
-        .stats-summary {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 15px;
-            margin-bottom: 30px;
-        }
-
-        .stats-box {
-            background: linear-gradient(145deg, #f8f9fa, #e9ecef);
-            padding: 15px;
-            border-radius: 15px;
-            text-align: center;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-
-        .stats-label {
-            font-size: 14px;
-            color: #666;
-            margin-bottom: 5px;
-        }
-
-        .stats-value {
-            font-size: 28px;
-            font-weight: bold;
-            color: #2c3e50;
-        }
-
-        .stats-legend {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            justify-content: center;
-            margin: 20px 0;
-            padding: 15px;
-            background: #f8f9fa;
-            border-radius: 10px;
-        }
-
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 14px;
-        }
-
-        .legend-color {
-            width: 20px;
-            height: 20px;
-            border-radius: 5px;
-        }
-
-        .stats-list {
-            max-height: 400px;
-            overflow-y: auto;
-            margin: 20px 0;
-            border: 2px solid #e9ecef;
-            border-radius: 15px;
-            padding: 10px;
-        }
-
-        .stats-item {
-            display: grid;
-            grid-template-columns: 80px 1fr 80px 100px;
-            gap: 10px;
-            padding: 12px;
-            margin: 5px 0;
-            border-radius: 8px;
-            font-size: 16px;
-            align-items: center;
-        }
-
-        .stats-item.fast-correct {
-            background: rgba(40, 167, 69, 0.2);
-            border-left: 5px solid #28a745;
-        }
-
-        .stats-item.normal-correct {
-            background: rgba(23, 162, 184, 0.1);
-            border-left: 5px solid #17a2b8;
-        }
-
-        .stats-item.slow-correct {
-            background: rgba(255, 193, 7, 0.2);
-            border-left: 5px solid #ffc107;
-        }
-
-        .stats-item.wrong {
-            background: rgba(220, 53, 69, 0.1);
-            border-left: 5px solid #dc3545;
-        }
-
-        .stats-number {
-            font-weight: bold;
-            color: #2c3e50;
-        }
-
-        .stats-question {
-            font-family: monospace;
-            font-size: 18px;
-        }
-
-        .stats-time {
-            font-family: monospace;
-            text-align: right;
-        }
-
-        .stats-result {
-            text-align: center;
-            font-weight: bold;
-        }
-
-        .stats-buttons {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-            margin-top: 30px;
-            flex-wrap: wrap;
-        }
-
-        .history-item {
-            background: #f8f9fa;
-            border-radius: 15px;
-            padding: 15px;
-            margin: 10px 0;
-            border-left: 5px solid #6c5ce7;
-        }
-
-        .history-header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 10px;
-            font-weight: bold;
-            color: #2c3e50;
-        }
-
-        .history-stats {
-            display: flex;
-            gap: 15px;
-            color: #666;
-            font-size: 14px;
-        }
-
-        .history-view-btn {
-            background: #6c5ce7;
-            color: white;
-            border: none;
-            padding: 5px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        .history-view-btn:hover {
-            background: #5b4bc4;
-        }
-    `;
-    document.head.appendChild(style);
-
-    // Inicializar o jogo
-    setTimeout(() => {
-        init();
-    }, 100);
+    setTimeout(() => { init(); }, 100);
 }
 
+// ============================================
+// INICIALIZAÇÃO
+// ============================================
 function init() {
     configurarNiveis();
     configurarElementosDOM();
     configurarEventListeners();
-    
-    
+    configurarSeletoresAluno();
     setupVisibilityDetection();
-    
     window.tabuada = { currentLevel, score, remainingTime, gameActive };
 }
 
@@ -577,7 +323,7 @@ function configurarElementosDOM() {
         resultStats: document.getElementById('result-stats'),
         nextLevelBtn: document.getElementById('next-level'),
         playAgainBtn: document.getElementById('play-again'),
-        startBtn: document.getElementById('start-btn'), 
+        startBtn: document.getElementById('start-btn'),
         restartBtn: document.getElementById('restart-btn'),
         vptabuadaBtn: document.getElementById('vptabuada-btn'),
         voltarBtn: document.querySelector('.voltar'),
@@ -585,10 +331,10 @@ function configurarElementosDOM() {
         backToHistoryStats: document.getElementById('back-to-history-stats'),
         viewStatsBtn: document.getElementById('view-stats-btn'),
         viewLevelStats: document.getElementById('view-level-stats'),
-        backToResult: document.getElementById('back-to-result'),
+        viewSessionHistory: document.getElementById('view-session-history'),
         backToWelcome: document.getElementById('back-to-welcome'),
-        saveStatsBtn: document.getElementById('save-stats-btn'),
-        clearStatsBtn: document.getElementById('clear-stats-btn'),
+       
+        
         clearHistoryBtn: document.getElementById('clear-history-btn'),
         statsLevel: document.getElementById('stats-level'),
         statsTotal: document.getElementById('stats-total'),
@@ -597,7 +343,6 @@ function configurarElementosDOM() {
         statsAvgTime: document.getElementById('stats-avg-time'),
         statsList: document.getElementById('stats-list'),
         historyList: document.getElementById('history-list'),
-        // Elementos de configuração
         configBtn: document.getElementById('config-btn'),
         configIndicator: document.getElementById('config-indicator'),
         selectedLevel: document.getElementById('selected-level'),
@@ -621,110 +366,49 @@ function configurarEventListeners() {
     if (elements.nextLevelBtn) elements.nextLevelBtn.addEventListener('click', nextLevel);
     if (elements.restartBtn) elements.restartBtn.addEventListener('click', reiniciarJogo);
     if (elements.vptabuadaBtn) elements.vptabuadaBtn.addEventListener('click', retornarparatabuada);
-    
     if (elements.voltarBtn) elements.voltarBtn.addEventListener('click', () => location.reload());
+    if (elements.viewStatsBtn) elements.viewStatsBtn.addEventListener('click', mostrarHistoricoDaSessao);
+    if (elements.viewLevelStats) elements.viewLevelStats.addEventListener('click', () => mostrarEstatisticasAtuais('result'));
+    if (elements.viewSessionHistory) elements.viewSessionHistory.addEventListener('click', mostrarHistoricoDaSessao);
+    if (elements.backToResultStats) elements.backToResultStats.addEventListener('click', () => {
+        elements.statsScreen.classList.add('hidden');
+        elements.resultScreen.classList.remove('hidden');
+    });
+    if (elements.backToHistoryStats) elements.backToHistoryStats.addEventListener('click', () => {
+        elements.statsScreen.classList.add('hidden');
+        elements.historyScreen.classList.remove('hidden');
+    });
+    if (elements.backToWelcome) elements.backToWelcome.addEventListener('click', () => {
+        elements.historyScreen.classList.add('hidden');
+        elements.welcomeScreen.classList.remove('hidden');
+    });
+    if (elements.clearHistoryBtn) elements.clearHistoryBtn.addEventListener('click', limparHistorico);
     
-    // NOVOS EVENT LISTENERS PARA ESTATÍSTICAS
-    if (elements.viewStatsBtn) {
-        elements.viewStatsBtn.addEventListener('click', mostrarHistorico);
-    }
-    
-    if (elements.viewLevelStats) {
-        elements.viewLevelStats.addEventListener('click', function() {
-            console.log("📊 Botão Ver Estatísticas do Nível clicado!");
-            mostrarEstatisticasAtuais('result'); // ← PASSA 'result' COMO ORIGEM
-        });
-    }
-    
-    if (elements.backToResult) {
-        elements.backToResult.addEventListener('click', () => {
-            elements.statsScreen.classList.add('hidden');
-            elements.resultScreen.classList.remove('hidden');
-        });
-    }
-    
-    if (elements.backToWelcome) {
-        elements.backToWelcome.addEventListener('click', () => {
-            elements.historyScreen.classList.add('hidden');
-            elements.welcomeScreen.classList.remove('hidden');
-        });
-    }
-    
-        // Botão voltar para tela de resultado (quando veio do parabéns)
-    if (elements.backToResultStats) {
-        elements.backToResultStats.addEventListener('click', () => {
-            elements.statsScreen.classList.add('hidden');
-            elements.resultScreen.classList.remove('hidden');
-        });
-    }
-
-    // Botão voltar para histórico (quando veio do menu)
-    if (elements.backToHistoryStats) {
-        elements.backToHistoryStats.addEventListener('click', () => {
-            elements.statsScreen.classList.add('hidden');
-            elements.historyScreen.classList.remove('hidden');
-        });
-    }
-
-    if (elements.saveStatsBtn) {
-        elements.saveStatsBtn.addEventListener('click', salvarEstatisticas);
-    }
-    
-    if (elements.clearStatsBtn) {
-        elements.clearStatsBtn.addEventListener('click', limparEstatisticasAtuais);
-    }
-    
-    if (elements.clearHistoryBtn) {
-        elements.clearHistoryBtn.addEventListener('click', limparHistorico);
-    }
-    
-    // Event listeners para configuração
-    if (elements.configBtn) {
-        elements.configBtn.addEventListener('click', abrirModalSenha);
-    }
-    
-    if (elements.confirmPassword) {
-        elements.confirmPassword.addEventListener('click', verificarSenha);
-    }
-    
-    if (elements.cancelPassword) {
-        elements.cancelPassword.addEventListener('click', fecharModalSenha);
-    }
-    
-    if (elements.cancelConfig) {
-        elements.cancelConfig.addEventListener('click', fecharModalConfig);
-    }
-    
-    if (elements.applyConfig) {
-        elements.applyConfig.addEventListener('click', aplicarConfiguracoes);
-    }
+    // Configuração
+    if (elements.configBtn) elements.configBtn.addEventListener('click', abrirModalSenha);
+    if (elements.confirmPassword) elements.confirmPassword.addEventListener('click', verificarSenha);
+    if (elements.cancelPassword) elements.cancelPassword.addEventListener('click', fecharModalSenha);
+    if (elements.cancelConfig) elements.cancelConfig.addEventListener('click', fecharModalConfig);
+    if (elements.applyConfig) elements.applyConfig.addEventListener('click', aplicarConfiguracoes);
     
     // Controles de tempo
-    if (elements.decreaseTime) {
-        elements.decreaseTime.addEventListener('click', () => {
-            let valor = parseInt(elements.timeInput.value) || 26;
-            valor = Math.max(5, valor - 1);
-            elements.timeInput.value = valor;
-        });
-    }
-    
-    if (elements.increaseTime) {
-        elements.increaseTime.addEventListener('click', () => {
-            let valor = parseInt(elements.timeInput.value) || 26;
-            valor = Math.min(120, valor + 1);
-            elements.timeInput.value = valor;
-        });
-    }
-    
-    if (elements.timeInput) {
-        elements.timeInput.addEventListener('change', () => {
+    if (elements.decreaseTime) elements.decreaseTime.addEventListener('click', () => {
+        let valor = parseInt(elements.timeInput.value) || 26;
+        valor = Math.max(5, valor - 1);
+        elements.timeInput.value = valor;
+    });
+    if (elements.increaseTime) elements.increaseTime.addEventListener('click', () => {
+        let valor = parseInt(elements.timeInput.value) || 26;
+        valor = Math.min(120, valor + 1);
+        elements.timeInput.value = valor;
+    });
+    if (elements.timeInput)elements.timeInput.addEventListener('change', () => {
             let valor = parseInt(elements.timeInput.value) || 26;
             valor = Math.min(120, Math.max(5, valor));
             elements.timeInput.value = valor;
-        });
-    }
+    });
     
-    // Event delegation para as opções
+    // Opções do jogo
     if (elements.optionsContainer) {
         elements.optionsContainer.addEventListener('click', (e) => {
             if (gameActive && e.target.classList.contains('option')) {
@@ -733,17 +417,15 @@ function configurarEventListeners() {
         });
     }
     
-    // Event delegation para os botões de nível
     document.addEventListener('click', (e) => {
-        if (e.target.classList.contains('level-btn')) {
-            document.querySelectorAll('.level-btn').forEach(btn => {
-                btn.classList.remove('selected');
-            });
-            e.target.classList.add('selected');
-        }
+    if (e.target.classList.contains('level-btn')) {
+        document.querySelectorAll('.level-btn').forEach(btn => {
+            btn.classList.remove('selected');
+        });
+        e.target.classList.add('selected');
+    }
     });
-    
-    // Fechar modal com ESC
+
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
             fecharModalSenha();
@@ -753,9 +435,51 @@ function configurarEventListeners() {
 }
 
 // ============================================
+// FUNÇÕES DE IDENTIFICAÇÃO DO ALUNO
+// ============================================
+function configurarSeletoresAluno() {
+    // Ano selector
+    document.querySelectorAll('.ano-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            document.querySelectorAll('.ano-btn').forEach(b => b.classList.remove('selected'));
+            e.target.classList.add('selected');
+            alunoAno = e.target.dataset.ano;
+            document.getElementById('letra-selector').style.display = 'flex';
+            document.getElementById('numero-selector').style.display = 'none';
+            document.getElementById('aluno-info').style.display = 'none';
+            alunoLetra = null;
+            alunoNumero = null;
+        });
+    });
+    
+    // Letra selector
+    document.querySelectorAll('.letra-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            document.querySelectorAll('.letra-btn').forEach(b => b.classList.remove('selected'));
+            e.target.classList.add('selected');
+            alunoLetra = e.target.dataset.letra;
+            document.getElementById('numero-selector').style.display = 'flex';
+            alunoNumero = null;
+        });
+    });
+    
+    // Número selector
+    document.querySelectorAll('.numero-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            document.querySelectorAll('.numero-btn').forEach(b => b.classList.remove('selected'));
+            e.target.classList.add('selected');
+            alunoNumero = e.target.dataset.numero;
+            document.getElementById('aluno-ano-display').textContent = alunoAno;
+            document.getElementById('aluno-letra-display').textContent = alunoLetra;
+            document.getElementById('aluno-numero-display').textContent = alunoNumero;
+            document.getElementById('aluno-info').style.display = 'block';
+        });
+    });
+}
+
+// ============================================
 // FUNÇÕES DE ESTATÍSTICAS
 // ============================================
-
 function iniciarNovasEstatisticas() {
     questionStats = [];
     currentQuestionNumber = 0;
@@ -768,9 +492,7 @@ function iniciarTempoQuestao() {
 
 function registrarResposta(acertou) {
     if (!questionStartTime) return;
-    
-    const tempoResposta = (Date.now() - questionStartTime) / 1000; // em segundos
-    
+    const tempoResposta = (Date.now() - questionStartTime) / 1000;
     questionStats.push({
         numero: currentQuestionNumber,
         multiplicador: currentMultiplier,
@@ -780,7 +502,6 @@ function registrarResposta(acertou) {
         tempo: tempoResposta,
         nivel: currentLevel
     });
-    
     questionStartTime = null;
 }
 
@@ -790,315 +511,209 @@ function calcularMediaTempo() {
     return soma / questionStats.length;
 }
 
-function mostrarEstatisticasAtuais(origem) {
-    console.log("📊 Mostrando estatísticas atuais. Origem:", origem);
-    
-    // Esconder outras telas
-    elements.resultScreen.classList.add('hidden');
-    elements.gameScreen.classList.add('hidden');
-    elements.welcomeScreen.classList.add('hidden');
-    elements.historyScreen.classList.add('hidden');
-    
-    // Mostrar tela de estatísticas
-    elements.statsScreen.classList.remove('hidden');
-    
-    // Controlar visibilidade dos botões baseado na origem
-    if (origem === 'result') {
-        // Veio da tela de parabéns
-        elements.backToResultStats.style.display = 'inline-block';
-        elements.backToHistoryStats.style.display = 'none';
-        elements.saveStatsBtn.style.display = 'inline-block'; // pode salvar
-    } else {
-        // Veio do histórico
-        elements.backToResultStats.style.display = 'none';
-        elements.backToHistoryStats.style.display = 'inline-block';
-        elements.saveStatsBtn.style.display = 'none'; // já está salvo, não precisa salvar de novo
+function salvarEstatisticas() {
+    if (questionStats.length < MIN_RESPOSTAS_PARA_SALVAR) {
+        console.log(`⏭️ Partida ignorada (apenas ${questionStats.length} respostas)`);
+        return;
     }
     
-    // Atualizar informações
-    elements.statsLevel.textContent = currentLevel;
+    if (!alunoAno || !alunoLetra || !alunoNumero) {
+        alert('⚠️ Por favor, identifique-se antes de jogar!');
+        return;
+    }
     
-    const totalQuestoes = questionStats.length;
-    const acertos = questionStats.filter(s => s.acertou).length;
-    const erros = totalQuestoes - acertos;
-    const mediaTempo = calcularMediaTempo();
-    
-    elements.statsTotal.textContent = totalQuestoes;
-    elements.statsCorrect.textContent = acertos;
-    elements.statsWrong.textContent = erros;
-    elements.statsAvgTime.textContent = mediaTempo.toFixed(1) + 's';
-    
-    // Gerar lista detalhada
-    elements.statsList.innerHTML = '';
-    
-    questionStats.forEach(stat => {
-        const item = document.createElement('div');
-        item.className = 'stats-item';
-        
-        if (!stat.acertou) {
-            item.classList.add('wrong');
-        } else {
-            if (stat.tempo < mediaTempo * 0.8) {
-                item.classList.add('fast-correct');
-            } else if (stat.tempo > mediaTempo * 1.2) {
-                item.classList.add('slow-correct');
-            } else {
-                item.classList.add('normal-correct');
-            }
-        }
-        
-        const tempoFormatado = stat.tempo.toFixed(1) + 's';
-        const resultado = stat.acertou ? '✅' : '❌';
-        
-        item.innerHTML = `
-            <div class="stats-number">#${stat.numero}</div>
-            <div class="stats-question">${stat.multiplicador} × ${stat.valor} = ${stat.resposta}</div>
-            <div class="stats-time">${tempoFormatado}</div>
-            <div class="stats-result">${resultado}</div>
-        `;
-        
-        elements.statsList.appendChild(item);
-    });
-}
-
-function salvarEstatisticas() {
-    // Carregar histórico existente
     let historico = [];
     const historicoSalvo = localStorage.getItem(STATS_KEY);
-    
     if (historicoSalvo) {
-        try {
-            historico = JSON.parse(historicoSalvo);
-        } catch (e) {
-            historico = [];
-        }
+        try { historico = JSON.parse(historicoSalvo); } catch (e) { historico = []; }
     }
     
-    // Criar novo registro
     const registro = {
         id: Date.now(),
         data: new Date().toLocaleString(),
+        dataTimestamp: Date.now(),
+        aluno: { ano: alunoAno, letra: alunoLetra, numero: alunoNumero },
         nivel: currentLevel,
         stats: [...questionStats],
         total: questionStats.length,
         acertos: questionStats.filter(s => s.acertou).length,
-        mediaTempo: calcularMediaTempo()
+        mediaTempo: calcularMediaTempo(),
+        tempoTotal: timeLimit,
+        tempoRestante: remainingTime
     };
     
-    // Adicionar ao histórico
     historico.push(registro);
-    
-    // Limitar histórico a 50 itens
-    if (historico.length > 50) {
-        historico = historico.slice(-50);
-    }
-    
-    // Salvar
+    if (historico.length > MAX_HISTORICO) historico = historico.slice(-MAX_HISTORICO);
     localStorage.setItem(STATS_KEY, JSON.stringify(historico));
-    
-    alert('✅ Estatísticas salvas com sucesso!');
+    console.log(`✅ Partida de ${alunoAno}${alunoLetra} N°${alunoNumero} salva`);
 }
 
-function mostrarHistorico() {
-    // Esconder outras telas
+function mostrarEstatisticasAtuais(origem) {
+    elements.resultScreen.classList.add('hidden');
+    elements.gameScreen.classList.add('hidden');
+    elements.welcomeScreen.classList.add('hidden');
+    elements.historyScreen.classList.add('hidden');
+    elements.statsScreen.classList.remove('hidden');
+    
+    elements.backToResultStats.style.display = (origem === 'result') ? 'inline-block' : 'none';
+    elements.backToHistoryStats.style.display = (origem === 'history') ? 'inline-block' : 'none';
+    
+    elements.statsLevel.textContent = currentLevel;
+    elements.statsTotal.textContent = questionStats.length;
+    elements.statsCorrect.textContent = questionStats.filter(s => s.acertou).length;
+    elements.statsWrong.textContent = questionStats.filter(s => !s.acertou).length;
+    elements.statsAvgTime.textContent = calcularMediaTempo().toFixed(1) + 's';
+    
+    elements.statsList.innerHTML = '';
+    questionStats.forEach(stat => {
+        const item = document.createElement('div');
+        item.className = 'stats-item';
+        if (!stat.acertou) item.classList.add('wrong');
+        else if (stat.tempo < calcularMediaTempo() * 0.8) item.classList.add('fast-correct');
+        else if (stat.tempo > calcularMediaTempo() * 1.2) item.classList.add('slow-correct');
+        else item.classList.add('normal-correct');
+        
+        item.innerHTML = `
+            <div class="stats-number">#${stat.numero}</div>
+            <div class="stats-question">${stat.multiplicador} × ${stat.valor} = ${stat.resposta}</div>
+            <div class="stats-time">${stat.tempo.toFixed(1)}s</div>
+            <div class="stats-result">${stat.acertou ? '✅' : '❌'}</div>
+        `;
+        elements.statsList.appendChild(item);
+    });
+}
+
+function mostrarHistoricoDaSessao() {
     elements.welcomeScreen.classList.add('hidden');
     elements.resultScreen.classList.add('hidden');
     elements.gameScreen.classList.add('hidden');
     elements.statsScreen.classList.add('hidden');
-    
-    // Mostrar tela de histórico
     elements.historyScreen.classList.remove('hidden');
     
-    // Carregar histórico
     const historicoSalvo = localStorage.getItem(STATS_KEY);
     let historico = [];
-    
     if (historicoSalvo) {
-        try {
-            historico = JSON.parse(historicoSalvo);
-        } catch (e) {
-            historico = [];
-        }
+        try { historico = JSON.parse(historicoSalvo); } catch (e) { historico = []; }
     }
     
-    // Gerar lista
     elements.historyList.innerHTML = '';
     
     if (historico.length === 0) {
-        elements.historyList.innerHTML = '<p style="text-align: center; color: #666; padding: 40px;">Nenhuma estatística salva ainda.</p>';
+        elements.historyList.innerHTML = '<p style="text-align: center; padding: 40px;">Nenhuma estatística salva ainda.</p>';
         return;
     }
     
-    // Mostrar do mais recente para o mais antigo
+    // Resumo por aluno
+    const alunosMap = new Map();
+    historico.forEach(reg => {
+        const chave = `${reg.aluno.ano}-${reg.aluno.letra}-${reg.aluno.numero}`;
+        if (!alunosMap.has(chave)) {
+            alunosMap.set(chave, { aluno: reg.aluno, partidas: 0, questoes: 0, acertos: 0, tempoTotal: 0 });
+        }
+        const stat = alunosMap.get(chave);
+        stat.partidas++;
+        stat.questoes += reg.total;
+        stat.acertos += reg.acertos;
+        stat.tempoTotal += reg.mediaTempo * reg.total;
+    });
+    
+    const resumoDiv = document.createElement('div');
+    resumoDiv.className = 'stats-summary';
+    resumoDiv.innerHTML = '<h3 style="grid-column: 1/-1; text-align: center;">📋 Resumo por Aluno</h3>';
+    
+    alunosMap.forEach(stat => {
+        const percentual = Math.round((stat.acertos / stat.questoes) * 100) || 0;
+        const mediaAluno = (stat.tempoTotal / stat.questoes).toFixed(1);
+        const card = document.createElement('div');
+        card.className = 'stats-box';
+        card.innerHTML = `
+            <div class="stats-label">${stat.aluno.ano}${stat.aluno.letra} N°${stat.aluno.numero}</div>
+            <div class="stats-value" style="font-size: 20px;">${stat.partidas} jogos</div>
+            <div style="font-size: 14px;">✅ ${percentual}% | ⏱️ ${mediaAluno}s</div>
+        `;
+        resumoDiv.appendChild(card);
+    });
+    
+    elements.historyList.appendChild(resumoDiv);
+    
+    // Histórico detalhado
+    const detalhesDiv = document.createElement('div');
+    detalhesDiv.innerHTML = '<h3 style="text-align: center; margin: 20px 0;">📝 Últimas Partidas</h3>';
+    elements.historyList.appendChild(detalhesDiv);
+    
     historico.reverse().forEach(registro => {
         const item = document.createElement('div');
         item.className = 'history-item';
-        
         const percentual = Math.round((registro.acertos / registro.total) * 100);
+        const dataObj = new Date(registro.data);
+        const hora = dataObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         
         item.innerHTML = `
             <div class="history-header">
-                <span>📅 ${registro.data}</span>
+                <span>🕒 ${hora}</span>
+                <span>👤 ${registro.aluno.ano}${registro.aluno.letra} N°${registro.aluno.numero}</span>
                 <span>🎮 Nível ${registro.nivel}</span>
             </div>
             <div class="history-stats">
                 <span>✅ ${registro.acertos}/${registro.total}</span>
                 <span>📊 ${percentual}%</span>
-                <span>⏱️ Média: ${registro.mediaTempo.toFixed(1)}s</span>
+                <span>⏱️ ${registro.mediaTempo.toFixed(1)}s</span>
             </div>
             <div style="text-align: right; margin-top: 10px;">
                 <button class="history-view-btn" data-id="${registro.id}">Ver Detalhes</button>
             </div>
         `;
-        
         elements.historyList.appendChild(item);
     });
     
-    // Adicionar event listeners aos botões de visualização
     document.querySelectorAll('.history-view-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
             const id = parseInt(e.target.dataset.id);
-            verDetalhesHistorico(id);
+            const registro = historico.find(r => r.id === id);
+            if (registro) {
+                questionStats = registro.stats;
+                currentLevel = registro.nivel;
+                elements.historyScreen.classList.add('hidden');
+                mostrarEstatisticasAtuais('history');
+                
+                const info = document.createElement('div');
+                info.className = 'aluno-info';
+                info.style.margin = '10px 0 20px';
+                info.innerHTML = `👤 Aluno: ${registro.aluno.ano}${registro.aluno.letra} - N° ${registro.aluno.numero} | ${registro.data}`;
+                elements.statsList.insertBefore(info, elements.statsList.firstChild);
+            }
         });
     });
 }
 
-function verDetalhesHistorico(id) {
-    const historicoSalvo = localStorage.getItem(STATS_KEY);
-    if (!historicoSalvo) return;
-    
-    const historico = JSON.parse(historicoSalvo);
-    const registro = historico.find(r => r.id === id);
-    
-    if (!registro) return;
-    
-    // Temporariamente usar estas estatísticas
-    questionStats = registro.stats;
-    currentLevel = registro.nivel;
-    
-    // Mostrar tela de estatísticas
-    elements.historyScreen.classList.add('hidden');
-    mostrarEstatisticasAtuais('history');
-    
-    // Esconder botão de salvar (já está salvo)
-    if (elements.saveStatsBtn) {
-        elements.saveStatsBtn.style.display = 'none';
-    }
-}
-
-function limparEstatisticasAtuais() {
-    if (confirm('Tem certeza que deseja limpar as estatísticas atuais?')) {
-        questionStats = [];
-        mostrarEstatisticasAtuais();
-    }
-}
-
 function limparHistorico() {
-    if (confirm('Tem certeza que deseja limpar TODO o histórico de estatísticas?')) {
+    if (confirm('Tem certeza que deseja limpar TODO o histórico?')) {
         localStorage.removeItem(STATS_KEY);
-        mostrarHistorico();
+        mostrarHistoricoDaSessao();
     }
-}
-
-// ============================================
-// FUNÇÕES DOS MODAIS
-// ============================================
-
-function abrirModalSenha() {
-    elements.passwordModal.classList.remove('hidden');
-    elements.passwordInput.value = '';
-    elements.passwordInput.focus();
-}
-
-function fecharModalSenha() {
-    elements.passwordModal.classList.add('hidden');
-}
-
-function fecharModalConfig() {
-    elements.configModal.classList.add('hidden');
-}
-
-function verificarSenha() {
-    const senhaDigitada = elements.passwordInput.value;
-    
-    const hoje = new Date();
-    const d = hoje.getDate().toString().padStart(2, '0');
-    
-    const correctanswer = d + "5260";
-    
-    if (senhaDigitada === correctanswer) {
-        fecharModalSenha();
-        abrirModalConfig();
-    } else {
-        alert('❌ Senha incorreta! Tente novamente.');
-        elements.passwordInput.value = '';
-        elements.passwordInput.focus();
-    }
-}
-
-function abrirModalConfig() {
-    elements.timeInput.value = tempoConfigurado;
-    
-    document.querySelectorAll('.level-btn').forEach(btn => {
-        const nivel = parseInt(btn.dataset.level);
-        if (nivel === nivelConfigurado) {
-            btn.classList.add('selected');
-        } else {
-            btn.classList.remove('selected');
-        }
-    });
-    
-    elements.configModal.classList.remove('hidden');
-}
-
-function aplicarConfiguracoes() {
-    let nivelSelecionado = nivelConfigurado;
-    const nivelSelecionadoElem = document.querySelector('.level-btn.selected');
-    if (nivelSelecionadoElem) {
-        nivelSelecionado = parseInt(nivelSelecionadoElem.dataset.level);
-    }
-    
-    const tempoSelecionado = parseInt(elements.timeInput.value) || 26;
-    
-    nivelConfigurado = nivelSelecionado;
-    currentLevel = nivelSelecionado;
-    tempoConfigurado = tempoSelecionado;
-    baseTimeLimit = tempoSelecionado;
-    
-    elements.selectedLevel.textContent = nivelSelecionado;
-    elements.selectedTime.textContent = tempoSelecionado;
-    elements.configIndicator.style.display = 'block';
-    
-    alert(`✅ Configurações aplicadas:\nNível: ${nivelSelecionado}\nTempo: ${tempoSelecionado}s por questão`);
-    
-    fecharModalConfig();
 }
 
 // ============================================
 // FUNÇÕES DO JOGO
 // ============================================
-
 function startGame(reiniciado) {
-    limparTimer();
-
-    if (reiniciado === "sim" ){
-
-    }else{ 
-    const nivelSalvo = verificarJogoSalvo();
+    if (!alunoAno || !alunoLetra || !alunoNumero) {
+        alert('⚠️ Identifique-se primeiro: Ano → Turma → Número da Chamada');
+        return;
+    }
     
-    if (nivelSalvo) {
-        if (confirm(`🎮 Você tem um jogo do dia de hoje no nível ${nivelSalvo}.\n\nDeseja começar um novo jogo no nível ${nivelSalvo}?`)) {
+    limparTimer();
+    
+    if (reiniciado !== "sim") {
+        const nivelSalvo = verificarJogoSalvo();
+        if (nivelSalvo && confirm(`🎮 Continuar nível ${nivelSalvo}?`)) {
             iniciarJogoNoNivel(nivelSalvo);
         }
     }
-    }
-
+    
     gameActive = true;
     abaTrocada = false;
-    
-    // Iniciar estatísticas
     iniciarNovasEstatisticas();
-    
     localStorage.removeItem(SAVE_KEY);
     
     elements.welcomeScreen.classList.add('hidden');
@@ -1107,15 +722,12 @@ function startGame(reiniciado) {
     elements.historyScreen.classList.add('hidden');
     elements.gameScreen.classList.remove('hidden');
     if (elements.restartBtn) elements.restartBtn.classList.remove('hidden');
-    if (elements.vptabuadaBtn) elements. vptabuadaBtn.classList.remove('hidden');
-
+    if (elements.vptabuadaBtn) elements.vptabuadaBtn.classList.remove('hidden');
     
     const config = levelConfigs[nivelConfigurado];
     currentLevel = nivelConfigurado;
-    
     totalQuestions = config.totalCards;
     timeLimit = Math.floor(baseTimeLimit * config.timeMultiplier);
-    
     score = 0;
     remainingCards = totalQuestions;
     remainingTime = timeLimit;
@@ -1129,60 +741,42 @@ function startGame(reiniciado) {
     updateLevelInfo();
     generateQuestion();
     startTimer();
-    
     salvarEstadoJogo();
 }
 
 function generateQuestion() {
     const config = levelConfigs[currentLevel];
-    
     if (config.multipliers.length > 1) {
         const randomIndex = Math.floor(Math.random() * config.multipliers.length);
         currentMultiplier = config.multipliers[randomIndex];
         elements.fixedCard.textContent = currentMultiplier;
     }
-    
     currentValue = Math.floor(Math.random() * 8) + 2;
-    
     correctAnswer = currentMultiplier * currentValue;
-    
     elements.currentNumber.textContent = currentValue;
     elements.resultElement.textContent = '?';
-    
     generateOptions();
-    
-    // Iniciar contagem de tempo para esta questão
     iniciarTempoQuestao();
 }
 
-// FUNÇÃO QUE ESTAVA FALTANDO - ESSENCIAL!
 function generateOptions() {
     elements.optionsContainer.innerHTML = '';
-    
     let options = [correctAnswer];
     let range = correctAnswer > 50 ? 10 : 4;
     
     while (options.length < 6) {
         let option;
         let attempts = 0;
-        
         do {
             const variation = Math.floor(Math.random() * (range * 2 + 1)) - range;
             option = correctAnswer + variation;
             attempts++;
-            
             if (attempts > 20) break;
         } while (option <= 0 || options.includes(option));
-        
-        if (!options.includes(option) && option > 0) {
-            options.push(option);
-        }
+        if (!options.includes(option) && option > 0) options.push(option);
     }
     
-    // Embaralhar opções
-    options = shuffleArray(options);
-    
-    options.forEach(option => {
+    shuffleArray(options).forEach(option => {
         const button = document.createElement('button');
         button.className = 'option';
         button.textContent = option;
@@ -1194,10 +788,7 @@ function checkAnswer(answer) {
     if (!gameActive) return;
     
     const acertou = (answer === correctAnswer);
-    
-    // Registrar resposta com tempo
     registrarResposta(acertou);
-    
     desabilitarOpcoes(elements.optionsContainer);
     
     if (acertou) {
@@ -1206,11 +797,11 @@ function checkAnswer(answer) {
         elements.scoreElement.textContent = `${score}/${totalQuestions}`;
         elements.resultElement.textContent = correctAnswer;
         
-        // Bônus diferenciado por nível
+        // Bônus diferenciado
         if (currentLevel >= 8 && currentLevel <= 10) {
-            remainingTime += 1.7; // Níveis 8, 9 e 10 ganham 1,7s
+            remainingTime += 1.7;
         } else {
-            remainingTime += 1.5; // Demais níveis ganham 1,5s
+            remainingTime += 1.5;
         }
     } else {
         remainingTime = Math.max(0.1, remainingTime - 2);
@@ -1218,43 +809,21 @@ function checkAnswer(answer) {
     }
     
     elements.deck.querySelector('div').textContent = remainingCards;
-    
     remainingTime = Math.round(remainingTime * 10) / 10;
     updateTimeDisplay();
     atualizarTimerVisual((remainingTime / timeLimit) * 100);
     
     if (score >= totalQuestions || remainingCards <= 0 || remainingTime <= 0.1) {
-        setTimeout(() => {
-            limparTimer();
-            endGame();
-        }, 800);
+        setTimeout(() => { limparTimer(); endGame(); }, 800);
         return;
     }
     
-    setTimeout(() => {
-        if (gameActive) {
-            generateQuestion();
-        }
-    }, 800);
+    setTimeout(() => { if (gameActive) generateQuestion(); }, 800);
 }
 
-function reiniciarJogo() {
-    limparTimer();
-    gameActive = false;
-    startGame("sim");
-
-}
-
-function limparTimer() {
-    if (timerInterval) {
-        clearInterval(timerInterval);
-        timerInterval = null;
-    }
-}
-
-function updateTimeDisplay() {
-    elements.timeElement.textContent = `${remainingTime.toFixed(1)}s`;
-}
+function reiniciarJogo() { limparTimer(); gameActive = false; startGame("sim"); }
+function limparTimer() { if (timerInterval) { clearInterval(timerInterval); timerInterval = null; } }
+function updateTimeDisplay() { elements.timeElement.textContent = `${remainingTime.toFixed(1)}s`; }
 
 function nextLevel() {
     currentLevel = currentLevel < 10 ? currentLevel + 1 : 1;
@@ -1264,10 +833,8 @@ function nextLevel() {
 
 function updateLevelInfo() {
     const config = levelConfigs[currentLevel];
-    
     elements.levelDisplay.textContent = currentLevel;
     elements.levelDescription.textContent = `Nível ${currentLevel}: ${config.description}`;
-    
     if (config.multipliers.length === 1) {
         elements.fixedCard.textContent = config.multipliers[0];
         currentMultiplier = config.multipliers[0];
@@ -1278,38 +845,22 @@ function updateLevelInfo() {
 
 function startTimer() {
     limparTimer();
-    
     timerInterval = setInterval(() => {
-        if (!gameActive) {
-            limparTimer();
-            return;
-        }
-        
+        if (!gameActive) { limparTimer(); return; }
         remainingTime = Math.max(0, remainingTime - 0.1);
         remainingTime = Math.round(remainingTime * 10) / 10;
-        
         updateTimeDisplay();
-        
         const percentage = (remainingTime / timeLimit) * 100;
         atualizarTimerVisual(percentage);
-        
-        if (remainingTime <= 0.1) {
-            limparTimer();
-            endGame();
-        }
+        if (remainingTime <= 0.1) { limparTimer(); endGame(); }
     }, 100);
 }
 
 function atualizarTimerVisual(percentage) {
     elements.timerProgress.style.width = `${percentage}%`;
-    
-    if (percentage <= 25) {
-        elements.timerProgress.style.backgroundColor = '#dc3545';
-    } else if (percentage <= 50) {
-        elements.timerProgress.style.backgroundColor = '#ffc107';
-    } else {
-        elements.timerProgress.style.backgroundColor = '#20c997';
-    }
+    if (percentage <= 25) elements.timerProgress.style.backgroundColor = '#dc3545';
+    else if (percentage <= 50) elements.timerProgress.style.backgroundColor = '#ffc107';
+    else elements.timerProgress.style.backgroundColor = '#20c997';
 }
 
 function desabilitarOpcoes(container) {
@@ -1331,10 +882,9 @@ function shuffleArray(array) {
 function endGame() {
     gameActive = false;
     limparTimer();
+    salvarEstatisticas();
     
-    if (score >= totalQuestions || remainingTime <= 0.1) {
-        localStorage.removeItem(SAVE_KEY);
-    }
+    if (score >= totalQuestions || remainingTime <= 0.1) localStorage.removeItem(SAVE_KEY);
     
     elements.gameScreen.classList.add('hidden');
     elements.resultScreen.classList.remove('hidden');
@@ -1342,99 +892,64 @@ function endGame() {
     if (elements.vptabuadaBtn) elements.vptabuadaBtn.classList.add('hidden');
     
     const venceu = score >= totalQuestions;
-    const tempoEsgotado = remainingTime <= 0.1;
-    
     if (venceu) {
         elements.resultMessage.textContent = 'Parabéns!';
-        elements.resultMessage.classList.remove('lose');
         elements.resultStats.textContent = `Você acertou ${score} de ${totalQuestions} questões!`;
-    } else if (tempoEsgotado) {
-        elements.resultMessage.textContent = 'Tempo esgotado!';
-        elements.resultMessage.classList.add('lose');
-        elements.resultStats.textContent = `Você acertou ${score} de ${totalQuestions} questões.`;
     } else {
-        elements.resultMessage.textContent = 'Fim do jogo!';
-        elements.resultMessage.classList.add('lose');
+        elements.resultMessage.textContent = 'Tempo esgotado!';
         elements.resultStats.textContent = `Você acertou ${score} de ${totalQuestions} questões.`;
     }
     
-    if (elements.nextLevelBtn) {
-        elements.nextLevelBtn.style.display = venceu && currentLevel < 10 ? 'block' : 'none';
-    }
-    
-    // Mostrar botão de estatísticas se houver dados
-    if (elements.viewLevelStats) {
-        elements.viewLevelStats.style.display = questionStats.length > 0 ? 'inline-block' : 'none';
-    }
+    if (elements.nextLevelBtn) elements.nextLevelBtn.style.display = venceu && currentLevel < 10 ? 'block' : 'none';
+    if (elements.viewLevelStats) elements.viewLevelStats.style.display = questionStats.length > 0 ? 'inline-block' : 'none';
 }
 
-// Detectar quando a página fica visível ou escondida
+// ============================================
+// SISTEMA ANTI-BURLA
+// ============================================
 function setupVisibilityDetection() {
     document.addEventListener('visibilitychange', handleVisibilityChange);
     window.addEventListener('blur', () => handleVisibilityChangeHidden());
     window.addEventListener('focus', () => handleVisibilityChangeVisible());
     window.addEventListener('pagehide', () => handleVisibilityChangeHidden());
-    window.addEventListener('pageshow', (event) => {
-        if (event.persisted) {
-            handleVisibilityChangeVisible();
-        }
-    });
-    
-    console.log('✅ Sistema anti-burla ativado (reinício silencioso)');
+    window.addEventListener('pageshow', (event) => { if (event.persisted) handleVisibilityChangeVisible(); });
 }
 
 function handleVisibilityChange() {
-    if (document.hidden) {
-        handleVisibilityChangeHidden();
-    } else {
-        handleVisibilityChangeVisible();
-    }
+    if (document.hidden) handleVisibilityChangeHidden();
+    else handleVisibilityChangeVisible();
 }
 
 function handleVisibilityChangeHidden() {
     if (!gameActive) return;
-    
-    console.log('⚠️ Aluno trocou de aba - marcando para reinício');
     timeWhenHidden = Date.now();
     abaTrocada = true;
 }
 
 function handleVisibilityChangeVisible() {
     if (!gameActive || !abaTrocada) return;
-    
     const tempoAusente = (Date.now() - timeWhenHidden) / 1000;
-    
     console.log(`🔄 Aluno voltou após ${tempoAusente.toFixed(1)}s - REINICIANDO NÍVEL`);
-    
     reiniciarNivelAtual();
     abaTrocada = false;
 }
 
-function reiniciarNivelAtual() {
-    gameActive = false;
-    limparTimer();
-    iniciarNivelAtual();
-}
+function reiniciarNivelAtual() { gameActive = false; limparTimer(); iniciarNivelAtual(); }
 
 function iniciarNivelAtual() {
     gameActive = true;
     abaTrocada = false;
-    
     const config = levelConfigs[currentLevel];
-    
     totalQuestions = config.totalCards;
     timeLimit = Math.floor(baseTimeLimit * config.timeMultiplier);
-    
     score = 0;
     remainingCards = totalQuestions;
     remainingTime = timeLimit;
-    
     elements.scoreElement.textContent = `${score}/${totalQuestions}`;
     elements.deck.querySelector('div').textContent = remainingCards;
     updateTimeDisplay();
     elements.timerProgress.style.width = '100%';
     elements.timerProgress.style.backgroundColor = '#20c997';
-    
     updateLevelInfo();
     generateQuestion();
     startTimer();
@@ -1442,41 +957,22 @@ function iniciarNivelAtual() {
 
 function salvarEstadoJogo() {
     if (!gameActive) return;
-    
-    const hoje = new Date().toDateString();
-    
-    const estado = {
-        currentLevel: currentLevel,
-        data: hoje,
-        timestamp: Date.now()
-    };
-    
+    const estado = { currentLevel: currentLevel, data: new Date().toDateString(), timestamp: Date.now() };
     localStorage.setItem(SAVE_KEY, JSON.stringify(estado));
-    console.log('💾 Nível salvo para referência:', estado);
 }
 
 function verificarJogoSalvo() {
     const savedState = localStorage.getItem(SAVE_KEY);
     if (!savedState) return false;
-    
     try {
         const estado = JSON.parse(savedState);
-        const hoje = new Date().toDateString();
-        
-        if (estado.data === hoje) {
-            return estado.currentLevel;
-        } else {
-            localStorage.removeItem(SAVE_KEY);
-            return false;
-        }
-    } catch (e) {
-        return false;
-    }
+        if (estado.data === new Date().toDateString()) return estado.currentLevel;
+        else { localStorage.removeItem(SAVE_KEY); return false; }
+    } catch (e) { return false; }
 }
 
 function iniciarJogoNoNivel(nivel) {
     gameActive = true;
-    
     elements.welcomeScreen.classList.add('hidden');
     elements.resultScreen.classList.add('hidden');
     elements.statsScreen.classList.add('hidden');
@@ -1484,64 +980,87 @@ function iniciarJogoNoNivel(nivel) {
     elements.gameScreen.classList.remove('hidden');
     if (elements.restartBtn) elements.restartBtn.classList.remove('hidden');
     if (elements.vptabuadaBtn) elements.vptabuadaBtn.classList.remove('hidden');
-
     
     const config = levelConfigs[nivel];
     currentLevel = nivel;
     nivelConfigurado = nivel;
-    
     totalQuestions = config.totalCards;
     timeLimit = Math.floor(baseTimeLimit * config.timeMultiplier);
-    
     score = 0;
     remainingCards = totalQuestions;
     remainingTime = timeLimit;
-    
     elements.scoreElement.textContent = `${score}/${totalQuestions}`;
     elements.deck.querySelector('div').textContent = remainingCards;
     updateTimeDisplay();
     elements.timerProgress.style.width = '100%';
     elements.timerProgress.style.backgroundColor = '#20c997';
-    
     updateLevelInfo();
     generateQuestion();
     startTimer();
-    
     salvarEstadoJogo();
 }
 
-function retornarparatabuada(){
-    console.log("🏠 Voltando para tela inicial da tabuada");
-    
-    // Parar o jogo
+function retornarparatabuada() {
     gameActive = false;
     limparTimer();
-    
-    // Esconder todas as telas do jogo
     elements.gameScreen.classList.add('hidden');
     elements.resultScreen.classList.add('hidden');
     elements.statsScreen.classList.add('hidden');
     elements.historyScreen.classList.add('hidden');
-   
-    
-    // Mostrar a tela de boas-vindas
     elements.welcomeScreen.classList.remove('hidden');
-    
-    // Esconder botão de reiniciar
-    if (elements.restartBtn) {
-        elements.restartBtn.classList.add('hidden');
-       
-    }
-
-    if (elements.vptabuadaBtn) {
-        elements.vptabuadaBtn.classList.add('hidden');
-       
-    }
-    
+    if (elements.restartBtn) elements.restartBtn.classList.add('hidden');
+    if (elements.vptabuadaBtn) elements.vptabuadaBtn.classList.add('hidden');
 }
 
-window.addEventListener('beforeunload', () => {
-    if (gameActive) {
-        salvarEstadoJogo();
+// ============================================
+// FUNÇÕES DOS MODAIS
+// ============================================
+function abrirModalSenha() { elements.passwordModal.classList.remove('hidden'); elements.passwordInput.value = ''; elements.passwordInput.focus(); }
+function fecharModalSenha() { elements.passwordModal.classList.add('hidden'); }
+function fecharModalConfig() { elements.configModal.classList.add('hidden'); }
+
+function verificarSenha() {
+    const senhaDigitada = elements.passwordInput.value;
+    const hoje = new Date();
+    const d = hoje.getDate().toString().padStart(2, '0');
+    if (senhaDigitada === d + "5260") {
+        fecharModalSenha();
+        abrirModalConfig();
+    } else {
+        alert('❌ Senha incorreta!');
+        elements.passwordInput.value = '';
+        elements.passwordInput.focus();
     }
-});
+}
+
+function abrirModalConfig() {
+    elements.timeInput.value = tempoConfigurado;
+    document.querySelectorAll('.level-btn').forEach(btn => {
+        if (parseInt(btn.dataset.level) === nivelConfigurado) btn.classList.add('selected');
+        else btn.classList.remove('selected');
+    });
+    elements.configModal.classList.remove('hidden');
+}
+
+function aplicarConfiguracoes() {
+    const nivelSelecionadoElem = document.querySelector('.level-btn.selected');
+    const nivelSelecionado = nivelSelecionadoElem ? parseInt(nivelSelecionadoElem.dataset.level) : nivelConfigurado;
+    const tempoSelecionado = parseInt(elements.timeInput.value) || 26;
+    
+    nivelConfigurado = nivelSelecionado;
+    currentLevel = nivelSelecionado;
+    tempoConfigurado = tempoSelecionado;
+    baseTimeLimit = tempoSelecionado;
+    
+    elements.selectedLevel.textContent = nivelSelecionado;
+    elements.selectedTime.textContent = tempoSelecionado;
+    elements.configIndicator.style.display = 'block';
+    
+    alert(`✅ Configurações aplicadas: Nível ${nivelSelecionado} | Tempo ${tempoSelecionado}s`);
+    fecharModalConfig();
+}
+
+// ============================================
+// SALVAR AO FECHAR
+// ============================================
+window.addEventListener('beforeunload', () => { if (gameActive) salvarEstadoJogo(); });
