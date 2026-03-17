@@ -43,9 +43,16 @@ const ANOS = ['6º', '7º', '8º', '9º'];
 const LETRAS = ['A', 'B', 'C', 'D', 'E', 'F'];
 const NUMEROS = Array.from({ length: 40 }, (_, i) => (i + 1).toString());
 
+// ============================================
+// CONSTANTES PARA RECUPERAÇÃO DE JOGO
+// ============================================
+const TEMPO_MAXIMO_RECUPERACAO = 3 * 60 * 1000; // 3 minutos em milissegundos
+
 // Elementos do DOM
 let elements = null;
 let levelConfigs = null;
+
+
 
 // ============================================
 // CONFIGURAÇÕES DE NÍVEL
@@ -644,10 +651,43 @@ function mostrarHistoricoDaSessao() {
     historico.reverse().forEach(registro => {
         const item = document.createElement('div');
         item.className = 'history-item';
+        
+        // Verificar se a partida é recuperável (últimos 3 minutos E acertos = total)
+// Calcular tempo da partida (já existente)
+        const agora = Date.now();
+        const tempoPartida = registro.dataTimestamp || registro.id;
+        const diferenca = agora - tempoPartida;
+        const ehRecente = diferenca <= TEMPO_MAXIMO_RECUPERACAO; // 3 minutos
+
         const percentual = Math.round((registro.acertos / registro.total) * 100);
         const dataObj = new Date(registro.data);
         const hora = dataObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        
+
+        // Determinar o nível para jogar baseado no resultado
+        // Determinar o nível para jogar baseado no resultado
+        let nivelParaJogar;
+        let textoBotao;
+
+      let totalEsperado;
+
+        if (registro.nivel >= 1 && registro.nivel <= 7) {
+            totalEsperado = 20;
+        } else if (registro.nivel >= 8 && registro.nivel <= 9) {
+            totalEsperado = 40;
+        } else if (registro.nivel === 10) {
+            totalEsperado = 50;
+        }
+
+        if (registro.acertos === totalEsperado) {
+            // VENCEU - acertou todas as questões do nível
+            nivelParaJogar = Math.min(registro.nivel + 1, 10);
+            textoBotao = `▶️ Jogar Nível ${nivelParaJogar} (próximo)`;
+        } else {
+            // NÃO VENCEU - acertou menos que o total necessário
+            nivelParaJogar = registro.nivel;
+            textoBotao = `▶️ Jogar Nível ${nivelParaJogar} (mesmo nível)`;
+        }
+        // Só mostra o botão se for recente (até 3 minutos)
         item.innerHTML = `
             <div class="history-header">
                 <span>🕒 ${hora}</span>
@@ -659,11 +699,75 @@ function mostrarHistoricoDaSessao() {
                 <span>📊 ${percentual}%</span>
                 <span>⏱️ ${registro.mediaTempo.toFixed(1)}s</span>
             </div>
-            <div style="text-align: right; margin-top: 10px;">
+            <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 10px;">
                 <button class="history-view-btn" data-id="${registro.id}">Ver Detalhes</button>
+                ${ehRecente ? `
+                    <button class="history-recover-btn" 
+                            data-nivel-original="${registro.nivel}" 
+                            data-nivel-jogar="${nivelParaJogar}"
+                            data-aluno='${JSON.stringify(registro.aluno)}'
+                            data-venceu="${registro.acertos === registro.total}"
+                            style="background: #28a745; color: white; border: none; padding: 5px 15px; border-radius: 5px; cursor: pointer;">
+                        ${textoBotao}
+                    </button>
+                ` : ''}
             </div>
         `;
+        
         elements.historyList.appendChild(item);
+    });
+    
+
+    document.querySelectorAll('.history-recover-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const nivelJogar = parseInt(e.target.dataset.nivelJogar);
+            const nivelOriginal = parseInt(e.target.dataset.nivelOriginal);
+            const venceu = e.target.dataset.venceu === 'true';
+            const aluno = JSON.parse(e.target.dataset.aluno);
+            
+            // Restaurar identificação do aluno
+            alunoAno = aluno.ano;
+            alunoLetra = aluno.letra;
+            alunoNumero = aluno.numero;
+            
+            // Atualizar display
+            document.getElementById('aluno-ano-display').textContent = alunoAno;
+            document.getElementById('aluno-letra-display').textContent = alunoLetra;
+            document.getElementById('aluno-numero-display').textContent = alunoNumero;
+            document.getElementById('aluno-info').style.display = 'block';
+            
+            // Marcar botões como selecionados
+            document.querySelectorAll('.ano-btn').forEach(btn => {
+                if (btn.dataset.ano === alunoAno) btn.classList.add('selected');
+            });
+            document.querySelectorAll('.letra-btn').forEach(btn => {
+                if (btn.dataset.letra === alunoLetra) btn.classList.add('selected');
+            });
+            document.querySelectorAll('.numero-btn').forEach(btn => {
+                if (btn.dataset.numero === alunoNumero) btn.classList.add('selected');
+            });
+            
+            // Configurar nível
+            nivelConfigurado = nivelJogar;
+            currentLevel = nivelJogar;
+            
+            // ATUALIZAR LOCALSTORAGE
+            const hoje = new Date().toDateString();
+            const estado = {
+                currentLevel: nivelJogar,
+                data: hoje,
+                timestamp: Date.now()
+            };
+            localStorage.setItem(SAVE_KEY, JSON.stringify(estado));
+            
+            // Voltar para tela inicial e começar
+            elements.historyScreen.classList.add('hidden');
+            elements.welcomeScreen.classList.remove('hidden');
+            
+            // Iniciar jogo automaticamente
+            setTimeout(() => startGame(), 100);
+        });
     });
     
     document.querySelectorAll('.history-view-btn').forEach(btn => {
@@ -704,17 +808,31 @@ function startGame(reiniciado) {
     
     limparTimer();
     
+    // Lógica de recuperação de jogo salvo
     if (reiniciado !== "sim") {
         const nivelSalvo = verificarJogoSalvo();
-        if (nivelSalvo && confirm(`🎮 Continuar nível ${nivelSalvo}?`)) {
-            iniciarJogoNoNivel(nivelSalvo);
+        if (nivelSalvo) {
+            if (confirm(`🎮 Continuar nível ${nivelSalvo}?`)) {
+                // USUÁRIO QUIS CONTINUAR - usa o nível salvo
+                iniciarJogoNoNivel(nivelSalvo);
+                return;
+            } else {
+                // USUÁRIO CANCELOU - FORÇA NÍVEL 1 (regra principal)
+                nivelConfigurado = 1;
+                currentLevel = 1;
+                // NÃO remove o localStorage, pois o professor pode ter configurado
+                // Apenas ignora para esta partida
+            }
         }
     }
     
+    // Iniciar jogo (agora nivelConfigurado é 1 se cancelou)
     gameActive = true;
     abaTrocada = false;
     iniciarNovasEstatisticas();
-    localStorage.removeItem(SAVE_KEY);
+    
+    // NÃO REMOVER O SAVE_KEY aqui! (já que pode ter configuração do professor)
+    // localStorage.removeItem(SAVE_KEY); ← COMENTADO
     
     elements.welcomeScreen.classList.add('hidden');
     elements.resultScreen.classList.add('hidden');
@@ -741,6 +859,8 @@ function startGame(reiniciado) {
     updateLevelInfo();
     generateQuestion();
     startTimer();
+    
+    // Salvar estado atual (agora é o nível que realmente começou)
     salvarEstadoJogo();
 }
 
@@ -1023,7 +1143,7 @@ function verificarSenha() {
     const senhaDigitada = elements.passwordInput.value;
     const hoje = new Date();
     const d = hoje.getDate().toString().padStart(2, '0');
-    if (senhaDigitada === d + "5260") {
+    if (senhaDigitada === "8889" + d) {
         fecharModalSenha();
         abrirModalConfig();
     } else {
@@ -1051,6 +1171,15 @@ function aplicarConfiguracoes() {
     currentLevel = nivelSelecionado;
     tempoConfigurado = tempoSelecionado;
     baseTimeLimit = tempoSelecionado;
+    
+    // SOBRESCREVER localStorage com o nível configurado
+    const hoje = new Date().toDateString();
+    const estado = {
+        currentLevel: nivelSelecionado,
+        data: hoje,
+        timestamp: Date.now()
+    };
+    localStorage.setItem(SAVE_KEY, JSON.stringify(estado));
     
     elements.selectedLevel.textContent = nivelSelecionado;
     elements.selectedTime.textContent = tempoSelecionado;
