@@ -1058,6 +1058,7 @@ function reiniciarNivelAtual() { gameActive = false; limparTimer(); iniciarNivel
 
 function iniciarNivelAtual() {
     gameActive = true;
+    iniciarNovasEstatisticas();
     abaTrocada = false;
     const config = levelConfigs[currentLevel];
     totalQuestions = config.totalCards;
@@ -1092,7 +1093,9 @@ function verificarJogoSalvo() {
 }
 
 function iniciarJogoNoNivel(nivel) {
+
     gameActive = true;
+    iniciarNovasEstatisticas();
     elements.welcomeScreen.classList.add('hidden');
     elements.resultScreen.classList.add('hidden');
     elements.statsScreen.classList.add('hidden');
