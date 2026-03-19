@@ -46,7 +46,7 @@ const NUMEROS = Array.from({ length: 40 }, (_, i) => (i + 1).toString());
 // ============================================
 // CONSTANTES PARA RECUPERAÇÃO DE JOGO
 // ============================================
-const TEMPO_MAXIMO_RECUPERACAO = 3 * 60 * 1000; // 3 minutos em milissegundos
+const TEMPO_MAXIMO_RECUPERACAO = 7 * 60 * 1000; // 3 minutos em milissegundos
 
 // Elementos do DOM
 let elements = null;
