@@ -1146,7 +1146,7 @@ function verificarSenha() {
     const senhaDigitada = elements.passwordInput.value;
     const hoje = new Date();
     const d = hoje.getDate().toString().padStart(2, '0');
-    if (senhaDigitada === "8889" + d) {
+    if (senhaDigitada === "52" + d + "60") {
         fecharModalSenha();
         abrirModalConfig();
     } else {
