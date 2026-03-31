@@ -25,6 +25,7 @@ let tempoConfigurado = 26;
 let pageVisible = true;
 let timeWhenHidden = 0;
 let abaTrocada = false;
+let hideTimerBar = false; // Controla se a barra de tempo está escondida
 const SAVE_KEY = 'tabuada_game_state';
 const STATS_KEY = 'tabuada_statistics';
 const MAX_HISTORICO = 100;
@@ -51,8 +52,6 @@ const TEMPO_MAXIMO_RECUPERACAO = 7 * 60 * 1000; // 3 minutos em milissegundos
 // Elementos do DOM
 let elements = null;
 let levelConfigs = null;
-
-
 
 // ============================================
 // CONFIGURAÇÕES DE NÍVEL
@@ -136,6 +135,14 @@ export function iniciarJogoTabuada() {
                     <button class="btn btn-config" id="config-btn">⚙️ Configurar</button>
                 </div>
                 
+                <!-- BOTÃO PARA ESCONDER/MOSTRAR BARRA DE TEMPO - DISPONÍVEL PARA O ALUNO -->
+                <div style="display: flex; gap: 10px; justify-content: center; margin-bottom: 15px;">
+                    <label id="hide-timer-label" style="display: flex; align-items: center; gap: 10px; cursor: pointer; background: #f0f0f0; padding: 8px 15px; border-radius: 20px;">
+                        <input type="checkbox" id="hide-timer-checkbox" style="width: 20px; height: 20px; cursor: pointer;">
+                        <span style="font-size: 14px;">🔇 Esconder barra de tempo</span>
+                    </label>
+                </div>
+                
                 <div style="display: flex; gap: 10px; justify-content: center; margin-bottom: 15px;">
                     <button class="btn btn-stats" id="view-stats-btn">📊 Ver Estatísticas</button>
                 </div>
@@ -163,7 +170,7 @@ export function iniciarJogoTabuada() {
                     </div>
                 </div>
                 
-                <div class="timer">
+                <div class="timer" id="timer-container">
                     <div class="timer-progress" id="timer-progress"></div>
                 </div>
                 
@@ -321,6 +328,7 @@ function configurarElementosDOM() {
         levelDisplay: document.getElementById('level-display'),
         levelDescription: document.getElementById('level-description'),
         timerProgress: document.getElementById('timer-progress'),
+        timerContainer: document.getElementById('timer-container'),
         currentNumber: document.getElementById('current-number'),
         resultElement: document.getElementById('result'),
         fixedCard: document.getElementById('fixed-card'),
@@ -340,8 +348,6 @@ function configurarElementosDOM() {
         viewLevelStats: document.getElementById('view-level-stats'),
         viewSessionHistory: document.getElementById('view-session-history'),
         backToWelcome: document.getElementById('back-to-welcome'),
-       
-        
         clearHistoryBtn: document.getElementById('clear-history-btn'),
         statsLevel: document.getElementById('stats-level'),
         statsTotal: document.getElementById('stats-total'),
@@ -364,6 +370,7 @@ function configurarElementosDOM() {
         decreaseTime: document.getElementById('decrease-time'),
         increaseTime: document.getElementById('increase-time'),
         timeInput: document.getElementById('time-input'),
+        hideTimerCheckbox: document.getElementById('hide-timer-checkbox'),
     };
 }
 
@@ -390,6 +397,16 @@ function configurarEventListeners() {
         elements.welcomeScreen.classList.remove('hidden');
     });
     if (elements.clearHistoryBtn) elements.clearHistoryBtn.addEventListener('click', limparHistorico);
+    
+    // NOVO EVENTO - Quando o aluno marcar/desmarcar o checkbox
+    if (elements.hideTimerCheckbox) {
+        elements.hideTimerCheckbox.addEventListener('change', (e) => {
+            hideTimerBar = e.target.checked;
+            if (gameActive) {
+                atualizarVisibilidadeBarraTempo();
+            }
+        });
+    }
     
     // Configuração
     if (elements.configBtn) elements.configBtn.addEventListener('click', abrirModalSenha);
@@ -652,23 +669,18 @@ function mostrarHistoricoDaSessao() {
         const item = document.createElement('div');
         item.className = 'history-item';
         
-        // Verificar se a partida é recuperável (últimos 3 minutos E acertos = total)
-// Calcular tempo da partida (já existente)
         const agora = Date.now();
         const tempoPartida = registro.dataTimestamp || registro.id;
         const diferenca = agora - tempoPartida;
-        const ehRecente = diferenca <= TEMPO_MAXIMO_RECUPERACAO; // 3 minutos
+        const ehRecente = diferenca <= TEMPO_MAXIMO_RECUPERACAO;
 
         const percentual = Math.round((registro.acertos / registro.total) * 100);
         const dataObj = new Date(registro.data);
         const hora = dataObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-        // Determinar o nível para jogar baseado no resultado
-        // Determinar o nível para jogar baseado no resultado
         let nivelParaJogar;
         let textoBotao;
-
-      let totalEsperado;
+        let totalEsperado;
 
         if (registro.nivel >= 1 && registro.nivel <= 7) {
             totalEsperado = 20;
@@ -679,15 +691,13 @@ function mostrarHistoricoDaSessao() {
         }
 
         if (registro.acertos === totalEsperado) {
-            // VENCEU - acertou todas as questões do nível
             nivelParaJogar = Math.min(registro.nivel + 1, 10);
             textoBotao = `▶️ Jogar Nível ${nivelParaJogar} (próximo)`;
         } else {
-            // NÃO VENCEU - acertou menos que o total necessário
             nivelParaJogar = registro.nivel;
             textoBotao = `▶️ Jogar Nível ${nivelParaJogar} (mesmo nível)`;
         }
-        // Só mostra o botão se for recente (até 3 minutos)
+        
         item.innerHTML = `
             <div class="history-header">
                 <span>🕒 ${hora}</span>
@@ -717,27 +727,21 @@ function mostrarHistoricoDaSessao() {
         elements.historyList.appendChild(item);
     });
     
-
     document.querySelectorAll('.history-recover-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
             e.stopPropagation();
             const nivelJogar = parseInt(e.target.dataset.nivelJogar);
-            const nivelOriginal = parseInt(e.target.dataset.nivelOriginal);
-            const venceu = e.target.dataset.venceu === 'true';
             const aluno = JSON.parse(e.target.dataset.aluno);
             
-            // Restaurar identificação do aluno
             alunoAno = aluno.ano;
             alunoLetra = aluno.letra;
             alunoNumero = aluno.numero;
             
-            // Atualizar display
             document.getElementById('aluno-ano-display').textContent = alunoAno;
             document.getElementById('aluno-letra-display').textContent = alunoLetra;
             document.getElementById('aluno-numero-display').textContent = alunoNumero;
             document.getElementById('aluno-info').style.display = 'block';
             
-            // Marcar botões como selecionados
             document.querySelectorAll('.ano-btn').forEach(btn => {
                 if (btn.dataset.ano === alunoAno) btn.classList.add('selected');
             });
@@ -748,11 +752,9 @@ function mostrarHistoricoDaSessao() {
                 if (btn.dataset.numero === alunoNumero) btn.classList.add('selected');
             });
             
-            // Configurar nível
             nivelConfigurado = nivelJogar;
             currentLevel = nivelJogar;
             
-            // ATUALIZAR LOCALSTORAGE
             const hoje = new Date().toDateString();
             const estado = {
                 currentLevel: nivelJogar,
@@ -761,11 +763,9 @@ function mostrarHistoricoDaSessao() {
             };
             localStorage.setItem(SAVE_KEY, JSON.stringify(estado));
             
-            // Voltar para tela inicial e começar
             elements.historyScreen.classList.add('hidden');
             elements.welcomeScreen.classList.remove('hidden');
             
-            // Iniciar jogo automaticamente
             setTimeout(() => startGame(), 100);
         });
     });
@@ -808,31 +808,22 @@ function startGame(reiniciado) {
     
     limparTimer();
     
-    // Lógica de recuperação de jogo salvo
     if (reiniciado !== "sim") {
         const nivelSalvo = verificarJogoSalvo();
         if (nivelSalvo) {
             if (confirm(`🎮 Continuar nível ${nivelSalvo}?`)) {
-                // USUÁRIO QUIS CONTINUAR - usa o nível salvo
                 iniciarJogoNoNivel(nivelSalvo);
                 return;
             } else {
-                // USUÁRIO CANCELOU - FORÇA NÍVEL 1 (regra principal)
                 nivelConfigurado = 1;
                 currentLevel = 1;
-                // NÃO remove o localStorage, pois o professor pode ter configurado
-                // Apenas ignora para esta partida
             }
         }
     }
     
-    // Iniciar jogo (agora nivelConfigurado é 1 se cancelou)
     gameActive = true;
     abaTrocada = false;
     iniciarNovasEstatisticas();
-    
-    // NÃO REMOVER O SAVE_KEY aqui! (já que pode ter configuração do professor)
-    // localStorage.removeItem(SAVE_KEY); ← COMENTADO
     
     elements.welcomeScreen.classList.add('hidden');
     elements.resultScreen.classList.add('hidden');
@@ -856,12 +847,25 @@ function startGame(reiniciado) {
     elements.timerProgress.style.width = '100%';
     elements.timerProgress.style.backgroundColor = '#20c997';
     
+    // Aplicar configuração de esconder barra de tempo
+    atualizarVisibilidadeBarraTempo();
+    
     updateLevelInfo();
     generateQuestion();
     startTimer();
     
-    // Salvar estado atual (agora é o nível que realmente começou)
     salvarEstadoJogo();
+}
+
+// NOVA FUNÇÃO - Atualiza a visibilidade da barra de tempo
+function atualizarVisibilidadeBarraTempo() {
+    if (elements.timerContainer) {
+        if (hideTimerBar) {
+            elements.timerContainer.style.display = 'none';
+        } else {
+            elements.timerContainer.style.display = 'block';
+        }
+    }
 }
 
 function generateQuestion() {
@@ -917,7 +921,6 @@ function checkAnswer(answer) {
         elements.scoreElement.textContent = `${score}/${totalQuestions}`;
         elements.resultElement.textContent = correctAnswer;
         
-        // Bônus diferenciado
         if (currentLevel >= 8 && currentLevel <= 10) {
             remainingTime += 1.7;
         } else {
@@ -1071,6 +1074,10 @@ function iniciarNivelAtual() {
     updateTimeDisplay();
     elements.timerProgress.style.width = '100%';
     elements.timerProgress.style.backgroundColor = '#20c997';
+    
+    // Aplicar configuração de esconder barra de tempo
+    atualizarVisibilidadeBarraTempo();
+    
     updateLevelInfo();
     generateQuestion();
     startTimer();
@@ -1093,7 +1100,6 @@ function verificarJogoSalvo() {
 }
 
 function iniciarJogoNoNivel(nivel) {
-
     gameActive = true;
     iniciarNovasEstatisticas();
     elements.welcomeScreen.classList.add('hidden');
@@ -1117,6 +1123,10 @@ function iniciarJogoNoNivel(nivel) {
     updateTimeDisplay();
     elements.timerProgress.style.width = '100%';
     elements.timerProgress.style.backgroundColor = '#20c997';
+    
+    // Aplicar configuração de esconder barra de tempo
+    atualizarVisibilidadeBarraTempo();
+    
     updateLevelInfo();
     generateQuestion();
     startTimer();
@@ -1175,7 +1185,6 @@ function aplicarConfiguracoes() {
     tempoConfigurado = tempoSelecionado;
     baseTimeLimit = tempoSelecionado;
     
-    // SOBRESCREVER localStorage com o nível configurado
     const hoje = new Date().toDateString();
     const estado = {
         currentLevel: nivelSelecionado,
