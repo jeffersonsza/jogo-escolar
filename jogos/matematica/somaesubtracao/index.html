@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogo de Soma e Subtração</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial Rounded MT Bold', 'Arial', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background-color: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 800px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .tela {
+            padding: 30px;
+            display: none;
+        }
+
+        .ativa {
+            display: block;
+        }
+
+        h1 {
+            color: #2575fc;
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 2.5rem;
+        }
+
+        h2 {
+            color: #6a11cb;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 1.8rem;
+        }
+
+        .descricao {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #666;
+            font-size: 1.1rem;
+            line-height: 1.5;
+        }
+
+        .grade-botoes {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .botao {
+            padding: 15px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(to right, #2575fc, #6a11cb);
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .botao:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .botao-voltar {
+            background: linear-gradient(to right, #f5a623, #f56123);
+            width: 100%;
+        }
+
+        .container-operacao {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .operacao {
+            font-size: 2rem;
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .linha-numeros {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 5px;
+            position: relative;
+        }
+
+        .linha-vai-um {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 5px;
+            height: 40px;
+        }
+
+        .celula-vai-um {
+            width: 50px;
+            height: 40px;
+            text-align: center;
+            margin: 0 5px;
+            border-bottom: 2px solid #ddd;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5rem;
+        }
+
+        .celula-numero {
+            width: 50px;
+            height: 50px;
+            text-align: center;
+            margin: 0 5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5rem;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+        }
+
+        .operador {
+            width: 50px;
+            text-align: center;
+            font-size: 1.8rem;
+            margin: 0 5px;
+        }
+
+        .linha-traco {
+            border-top: 2px solid #333;
+            margin: 10px 0;
+        }
+
+        .painel-numeros {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .botao-numero {
+            padding: 15px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(to right, #36d1dc, #5b86e5);
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .botao-numero:hover {
+            transform: scale(1.05);
+        }
+
+        .botoes-acao {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .botao-limpar {
+            background: linear-gradient(to right, #ff416c, #ff4b2b);
+        }
+
+        .botao-verificar {
+            background: linear-gradient(to right, #00b09b, #96c93d);
+        }
+
+        .temporizador {
+            text-align: center;
+            font-size: 1.5rem;
+            color: #ff416c;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .pontuacao {
+            text-align: center;
+            font-size: 1.5rem;
+            color: #00b09b;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .mensagem {
+            text-align: center;
+            font-size: 1.2rem;
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 12px;
+        }
+
+        .sucesso {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .erro {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .info {
+            background-color: #cce5ff;
+            color: #004085;
+        }
+
+        .marca-emprestimo {
+            position: absolute;
+            color: red;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .selecionado {
+            background-color: #ffd700 !important;
+            color: #333 !important;
+        }
+
+        .celula-resposta {
+            cursor: pointer;
+        }
+
+        .celula-vazia {
+            background-color: #f0f0f0;
+        }
+
+        .numero-cortado {
+            text-decoration: line-through;
+            color: red;
+        }
+
+        .numero-emprestimo {
+            position: absolute;
+            color: blue;
+            font-weight: bold;
+            font-size: 1rem;
+            bottom: -15px;
+            right: 2px;
+        }
+
+        @media (max-width: 600px) {
+            .grade-botoes {
+                grid-template-columns: 1fr;
+            }
+            
+            .celula-numero, .celula-vai-um, .operador {
+                width: 35px;
+                font-size: 1.2rem;
+            }
+            
+            .painel-numeros {
+                grid-template-columns: repeat(5, 1fr);
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            h2 {
+                font-size: 1.5rem;
+            }
+            
+            .operacao {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Tela de Boas Vindas -->
+        <div id="tela-bem-vindo" class="tela ativa">
+            <h1>Jogo de Soma e Subtração</h1>
+            <div class="descricao">
+                <p>Pratique suas habilidades em matemática!</p>
+                <p><strong>Soma ou Subtração (modo estudo)</strong> Sem tempo limite, com números de 3 dígitos</p>
+                <p><strong>Modo Desafio:</strong> 2 minutos para resolver 10 problemas (5 somas e 5 subtrações) com números de 5 dígitos</p>
+            </div>
+            <div class="grade-botoes">
+                <button class="botao" id="btn-soma-modo-estudo">Soma</button>
+                <button class="botao" id="btn-subtracao-modo-estudo">Subtrção</button>
+                <button class="botao" id="botao-modo-desafio">Modo Desafio</button>
+            </div>
+            <button class="botao botao-voltar" id="botao-voltar-menu">Retornar para o Menu</button>
+        </div>
+
+        <!-- Tela do Jogo -->
+        <div id="tela-jogo" class="tela">
+            <h1 id="titulo-jogo">Jogo</h1>
+            <div class="temporizador" id="temporizador" style="display: none;">02:00</div>
+            <div class="pontuacao" id="pontuacao" style="display: none;">Acertos: 0/10</div>
+            
+            <div class="container-operacao">
+                <div class="operacao" id="exibicao-operacao">
+                    <!-- Operação será gerada dinamicamente -->
+                </div>
+            </div>
+            
+            <div class="painel-numeros" id="painel-numeros">
+                <!-- Botões numéricos serão gerados dinamicamente -->
+            </div>
+            
+            <div class="botoes-acao">
+                <button class="botao botao-limpar" id="botao-limpar">Limpar</button>
+                <button class="botao botao-verificar" id="botao-verificar">Verificar</button>
+            </div>
+            
+            <div class="mensagem" id="mensagem" style="display: none;"></div>
+            
+            <div class="botoes-acao">
+                <button class="botao botao-voltar" id="botao-novo-problema">Nova Operação</button>
+                <button class="botao botao-voltar" id="botao-voltar-modo">Voltar ao Menu</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Elementos da interface
+        const telaBemVindo = document.getElementById('tela-bem-vindo');
+        const telaJogo = document.getElementById('tela-jogo');
+        const tituloJogo = document.getElementById('titulo-jogo');
+        const exibicaoOperacao = document.getElementById('exibicao-operacao');
+        const painelNumeros = document.getElementById('painel-numeros');
+        const temporizadorElemento = document.getElementById('temporizador');
+        const pontuacaoElemento = document.getElementById('pontuacao');
+        const mensagemElemento = document.getElementById('mensagem');
+
+        // Botões
+        const botaoModoEstudo = document.getElementById('botao-modo-estudo');
+        const botaoModoDesafio = document.getElementById('botao-modo-desafio');
+        const botaoVoltarMenu = document.getElementById('botao-voltar-menu');
+        const botaoLimpar = document.getElementById('botao-limpar');
+        const botaoVerificar = document.getElementById('botao-verificar');
+        const botaoNovoProblema = document.getElementById('botao-novo-problema');
+        const botaoVoltarModo = document.getElementById('botao-voltar-modo');
+
+        // Variáveis do jogo
+        let operacaoAtual = '';
+        let modoAtual = '';
+        let num1 = 0;
+        let num2 = 0;
+        let resultado = 0;
+        let numerosVaiUm = [];
+        let numerosEmprestimo = [];
+        let celulasResposta = [];
+        let celulasVaiUm = [];
+        let intervaloRelogio;
+        let tempoRestante = 120;
+        let pontuacao = 0;
+        let totalProblemas = 10;
+        let problemaAtual = 0;
+        let celulaSelecionada = null;
+        let botaoNumeroSelecionado = null;
+        let marcasEmprestimo = [];
+        let celulasNum1 = [];
+        let celulasNum2 = [];
+
+        // Inicialização
+        function iniciar() {
+            configurarEventListeners();
+        }
+
+        // Configurar event listeners
+        function configurarEventListeners() {
+            botaoModoEstudo.addEventListener('click', () => selecionarModo('estudo'));
+            botaoModoDesafio.addEventListener('click', () => selecionarModo('desafio'));
+            botaoVoltarMenu.addEventListener('click', voltarAoMenu);
+            botaoLimpar.addEventListener('click', limparResposta);
+            botaoVerificar.addEventListener('click', verificarResposta);
+            botaoNovoProblema.addEventListener('click', gerarProblema);
+            botaoVoltarModo.addEventListener('click', voltarParaSelecaoModo);
+        }
+
+        // Selecionar modo
+        function selecionarModo(modo) {
+            modoAtual = modo;
+            tituloJogo.textContent = modo === 'estudo' ? 'Modo Estudo' : 'Modo Desafio';
+            
+            if (modo === 'desafio') {
+                tempoRestante = 120;
+                pontuacao = 0;
+                problemaAtual = 0;
+                atualizarPontuacao();
+                iniciarTemporizador();
+                temporizadorElemento.style.display = 'block';
+                pontuacaoElemento.style.display = 'block';
+            } else {
+                temporizadorElemento.style.display = 'none';
+                pontuacaoElemento.style.display = 'none';
+            }
+            
+            // Definir operação aleatória para o modo desafio
+            if (modo === 'desafio') {
+                operacaoAtual = Math.random() > 0.5 ? 'soma' : 'subtracao';
+            }
+            
+            gerarProblema();
+            mostrarTela(telaJogo);
+        }
+
+        // Gerar problema
+        function gerarProblema() {
+            // Para o modo desafio, alternar entre soma e subtração
+            if (modoAtual === 'desafio') {
+                operacaoAtual = problemaAtual < 5 ? 'soma' : 'subtracao';
+            }
+            
+            if (operacaoAtual === 'soma') {
+                if (modoAtual === 'estudo') {
+                    num1 = Math.floor(Math.random() * 900) + 100; // Número de 3 dígitos
+                    num2 = Math.floor(Math.random() * 900) + 100; // Número de 3 dígitos
+                } else {
+                    num1 = Math.floor(Math.random() * 90000) + 10000; // Número de 5 dígitos
+                    num2 = Math.floor(Math.random() * 90000) + 10000; // Número de 5 dígitos
+                }
+                resultado = num1 + num2;
+            } else {
+                // Garantir que num1 seja maior que num2 para resultado positivo
+                if (modoAtual === 'estudo') {
+                    num2 = Math.floor(Math.random() * 900) + 100; // Número de 3 dígitos
+                    num1 = Math.floor(Math.random() * 900) + num2; // Número de 3 dígitos maior que num2
+                } else {
+                    num2 = Math.floor(Math.random() * 90000) + 10000; // Número de 5 dígitos
+                    num1 = Math.floor(Math.random() * 90000) + num2; // Número de 5 dígitos maior que num2
+                }
+                resultado = num1 - num2;
+            }
+            
+            renderizarOperacao();
+            criarBotoesNumeros();
+            esconderMensagem();
+        }
+
+        // Renderizar operação
+        function renderizarOperacao() {
+            exibicaoOperacao.innerHTML = '';
+            numerosVaiUm = [];
+            numerosEmprestimo = [];
+            celulasResposta = [];
+            celulasVaiUm = [];
+            marcasEmprestimo = [];
+            celulasNum1 = [];
+            celulasNum2 = [];
+            
+            const num1Str = num1.toString();
+            const num2Str = num2.toString();
+            const comprimentoMaximo = Math.max(num1Str.length, num2Str.length);
+            
+            // Criar linha de vai-um (apenas para soma)
+            if (operacaoAtual === 'soma') {
+                const linhaVaiUm = document.createElement('div');
+                linhaVaiUm.className = 'linha-vai-um';
+                
+                // Adicionar células vazias para vai-um
+                for (let i = 0; i < comprimentoMaximo; i++) {
+                    const celulaVaiUm = document.createElement('div');
+                    celulaVaiUm.className = 'celula-vai-um celula-vazia';
+                    celulaVaiUm.dataset.indice = i;
+                    celulaVaiUm.addEventListener('click', () => selecionarCelula(celulaVaiUm));
+                    linhaVaiUm.appendChild(celulaVaiUm);
+                    celulasVaiUm.push(celulaVaiUm);
+                }
+                
+                exibicaoOperacao.appendChild(linhaVaiUm);
+            }
+            
+            // Criar linha do primeiro número
+            const linhaNum1 = document.createElement('div');
+            linhaNum1.className = 'linha-numeros';
+            
+            // Criar linha do segundo número e operador
+            const linhaNum2 = document.createElement('div');
+            linhaNum2.className = 'linha-numeros';
+            
+            // Adicionar operador na linha do segundo número
+            const celulaOperador = document.createElement('div');
+            celulaOperador.className = 'operador';
+            celulaOperador.textContent = operacaoAtual === 'soma' ? '+' : '-';
+            linhaNum2.appendChild(celulaOperador);
+            
+            // Preencher com células para os números
+            for (let i = 0; i < comprimentoMaximo; i++) {
+                // Células do primeiro número
+                const celulaNum1 = document.createElement('div');
+                celulaNum1.className = 'celula-numero';
+                const indiceDigito1 = i - (comprimentoMaximo - num1Str.length);
+                if (indiceDigito1 >= 0) {
+                    celulaNum1.textContent = num1Str[indiceDigito1];
+                    celulaNum1.dataset.valor = num1Str[indiceDigito1];
+                } else {
+                    celulaNum1.textContent = '0';
+                    celulaNum1.dataset.valor = '0';
+                }
+                celulaNum1.dataset.indice = i;
+                if (operacaoAtual === 'subtracao') {
+                    celulaNum1.addEventListener('click', () => manipularCorte(celulaNum1));
+                }
+                linhaNum1.appendChild(celulaNum1);
+                celulasNum1.push(celulaNum1);
+                
+                // Células do segundo número
+                const celulaNum2 = document.createElement('div');
+                celulaNum2.className = 'celula-numero';
+                const indiceDigito2 = i - (comprimentoMaximo - num2Str.length);
+                if (indiceDigito2 >= 0) {
+                    celulaNum2.textContent = num2Str[indiceDigito2];
+                } else {
+                    celulaNum2.textContent = '0';
+                }
+                linhaNum2.appendChild(celulaNum2);
+                celulasNum2.push(celulaNum2);
+            }
+            
+            exibicaoOperacao.appendChild(linhaNum1);
+            exibicaoOperacao.appendChild(linhaNum2);
+            
+            // Criar linha do traço
+            const linhaTraco = document.createElement('div');
+            linhaTraco.className = 'linha-traco';
+            exibicaoOperacao.appendChild(linhaTraco);
+            
+            // Criar linha da resposta
+            const linhaResposta = document.createElement('div');
+            linhaResposta.className = 'linha-numeros';
+            
+            // Adicionar células de resposta
+            for (let i = 0; i < comprimentoMaximo; i++) {
+                const celulaResposta = document.createElement('div');
+                celulaResposta.className = 'celula-numero celula-vazia celula-resposta';
+                celulaResposta.dataset.indice = i;
+                celulaResposta.addEventListener('click', () => selecionarCelula(celulaResposta));
+                linhaResposta.appendChild(celulaResposta);
+                celulasResposta.push(celulaResposta);
+            }
+            
+            exibicaoOperacao.appendChild(linhaResposta);
+        }
+
+        // Criar botões numéricos
+        function criarBotoesNumeros() {
+            painelNumeros.innerHTML = '';
+            
+            for (let i = 0; i <= 9; i++) {
+                const botao = document.createElement('button');
+                botao.className = 'botao-numero';
+                botao.textContent = i;
+                botao.addEventListener('click', () => selecionarNumero(botao));
+                painelNumeros.appendChild(botao);
+            }
+            
+            if (operacaoAtual === 'subtracao') {
+                const botaoCortar = document.createElement('button');
+                botaoCortar.className = 'botao-numero';
+                botaoCortar.textContent = '/';
+                botaoCortar.addEventListener('click', () => {
+                    if (celulaSelecionada && celulaSelecionada.classList.contains('celula-numero') && 
+                        !celulaSelecionada.classList.contains('celula-resposta')) {
+                        manipularCorte(celulaSelecionada);
+                    } else {
+                        mostrarMensagem('Selecione um número da operação para cortar', 'info');
+                    }
+                });
+                painelNumeros.appendChild(botaoCortar);
+            }
+        }
+
+        // Selecionar célula
+        function selecionarCelula(celula) {
+            // Desselecionar célula anterior
+            if (celulaSelecionada) {
+                celulaSelecionada.classList.remove('selecionado');
+            }
+            
+            // Selecionar nova célula
+            celulaSelecionada = celula;
+            celula.classList.add('selecionado');
+            
+            // Se já tiver um número selecionado, colocar na célula
+            if (botaoNumeroSelecionado) {
+                colocarNumeroNaCelula();
+            }
+        }
+
+        // Selecionar número
+        function selecionarNumero(botao) {
+            // Desselecionar botão anterior
+            if (botaoNumeroSelecionado) {
+                botaoNumeroSelecionado.classList.remove('selecionado');
+            }
+            
+            // Selecionar novo botão
+            botaoNumeroSelecionado = botao;
+            botao.classList.add('selecionado');
+            
+            // Se já tiver uma célula selecionada, colocar o número
+            if (celulaSelecionada) {
+                colocarNumeroNaCelula();
+            }
+        }
+
+        // Colocar número na célula
+        function colocarNumeroNaCelula() {
+            if (celulaSelecionada && botaoNumeroSelecionado) {
+                celulaSelecionada.textContent = botaoNumeroSelecionado.textContent;
+                celulaSelecionada.classList.remove('celula-vazia');
+                
+                // Desselecionar
+                celulaSelecionada.classList.remove('selecionado');
+                botaoNumeroSelecionado.classList.remove('selecionado');
+                celulaSelecionada = null;
+                botaoNumeroSelecionado = null;
+            }
+        }
+
+        // Manipular corte (subtração)
+        function manipularCorte(celula) {
+            if (operacaoAtual !== 'subtracao') return;
+            
+            const indice = parseInt(celula.dataset.indice);
+            const valorOriginal = parseInt(celula.dataset.valor);
+            
+            // Verificar se é possível cortar (se o dígito é maior que 0)
+            if (valorOriginal === 0) {
+                mostrarMensagem('Não é possível cortar um zero', 'erro');
+                return;
+            }
+            
+            // Marcar o número como cortado
+            celula.classList.add('numero-cortado');
+            
+            // Adicionar o número 1 à direita (empréstimo)
+            if (indice > 0) {
+                const proximoIndice = indice - 1;
+                const proximaCelula = celulasNum1[proximoIndice];
+                
+                // Adicionar pequeno número 1 à direita da célula
+                const marcaEmprestimo = document.createElement('div');
+                marcaEmprestimo.className = 'numero-emprestimo';
+                marcaEmprestimo.textContent = '1';
+                proximaCelula.appendChild(marcaEmprestimo);
+                marcasEmprestimo.push(marcaEmprestimo);
+                
+                // Atualizar o valor da célula (adicionar 10)
+                const valorAtual = parseInt(proximaCelula.dataset.valor || '0');
+                proximaCelula.dataset.valor = (valorAtual + 10).toString();
+                
+                // Diminuir o valor original em 1
+                celula.dataset.valor = (valorOriginal - 1).toString();
+            }
+            
+            esconderMensagem();
+        }
+
+        // Limpar resposta
+        function limparResposta() {
+            celulasResposta.forEach(celula => {
+                celula.textContent = '';
+                celula.classList.add('celula-vazia');
+            });
+            
+            celulasVaiUm.forEach(celula => {
+                celula.textContent = '';
+                celula.classList.add('celula-vazia');
+            });
+            
+            // Remover marcas de empréstimo e cortes
+            marcasEmprestimo.forEach(marca => marca.remove());
+            marcasEmprestimo = [];
+            
+            celulasNum1.forEach(celula => {
+                celula.classList.remove('numero-cortado');
+                const valorOriginal = parseInt(celula.dataset.valorOriginal || celula.dataset.valor);
+                celula.dataset.valor = valorOriginal;
+                celula.textContent = valorOriginal;
+            });
+            
+            esconderMensagem();
+            
+            // Desselecionar qualquer célula ou botão
+            if (celulaSelecionada) {
+                celulaSelecionada.classList.remove('selecionado');
+                celulaSelecionada = null;
+            }
+            if (botaoNumeroSelecionado) {
+                botaoNumeroSelecionado.classList.remove('selecionado');
+                botaoNumeroSelecionado = null;
+            }
+        }
+
+        // Verificar resposta
+        function verificarResposta() {
+            // Construir a resposta do usuário
+            let respostaUsuario = '';
+            celulasResposta.forEach(celula => {
+                respostaUsuario = celula.textContent + respostaUsuario;
+            });
+            respostaUsuario = parseInt(respostaUsuario) || 0;
+            
+            // Verificar vai-um/empréstimo (implementação simplificada)
+            let correto = respostaUsuario === resultado;
+            
+            if (correto) {
+                if (modoAtual === 'desafio') {
+                    pontuacao++;
+                    problemaAtual++;
+                    atualizarPontuacao();
+                    
+                    if (problemaAtual >= totalProblemas) {
+                        finalizarJogo();
+                        return;
+                    }
+                    
+                    // Gerar nova operação (alternando entre soma e subtração)
+                    gerarProblema();
+                }
+                
+                mostrarMensagem('Parabéns! Resposta correta!', 'sucesso');
+                setTimeout(() => {
+                    if (modoAtual === 'estudo') {
+                        gerarProblema();
+                    }
+                    esconderMensagem();
+                }, 2000);
+            } else {
+                mostrarMensagem('Resposta incorreta. Tente novamente!', 'erro');
+            }
+        }
+
+        // Mostrar mensagem
+        function mostrarMensagem(texto, tipo) {
+            mensagemElemento.textContent = texto;
+            mensagemElemento.className = `mensagem ${tipo}`;
+            mensagemElemento.style.display = 'block';
+        }
+
+        // Esconder mensagem
+        function esconderMensagem() {
+            mensagemElemento.style.display = 'none';
+        }
+
+        // Iniciar temporizador
+        function iniciarTemporizador() {
+            clearInterval(intervaloRelogio);
+            intervaloRelogio = setInterval(() => {
+                tempoRestante--;
+                
+                const minutos = Math.floor(tempoRestante / 60);
+                const segundos = tempoRestante % 60;
+                temporizadorElemento.textContent = `${minutos.toString().padStart(2, '0')}:${segundos.toString().padStart(2, '0')}`;
+                
+                if (tempoRestante <= 0) {
+                    finalizarJogo();
+                }
+            }, 1000);
+        }
+
+        // Atualizar pontuação
+        function atualizarPontuacao() {
+            pontuacaoElemento.textContent = `Acertos: ${pontuacao}/${totalProblemas}`;
+        }
+
+        // Finalizar jogo
+        function finalizarJogo() {
+            clearInterval(intervaloRelogio);
+            
+            if (pontuacao === totalProblemas) {
+                mostrarMensagem(`Parabéns! Você completou todos os ${totalProblemas} problemas!`, 'sucesso');
+            } else {
+                mostrarMensagem(`Tempo esgotado! Você acertou ${pontuacao} de ${totalProblemas} problemas.`, 'erro');
+            }
+            
+            // Mostrar botão para jogar novamente
+            const botaoJogarNovamente = document.createElement('button');
+            botaoJogarNovamente.className = 'botao';
+            botaoJogarNovamente.textContent = 'Jogar Novamente';
+            botaoJogarNovamente.addEventListener('click', () => {
+                selecionarModo('desafio');
+            });
+            mensagemElemento.appendChild(botaoJogarNovamente);
+        }
+
+        // Mostrar tela
+        function mostrarTela(tela) {
+            telaBemVindo.classList.remove('ativa');
+            telaJogo.classList.remove('ativa');
+            
+            tela.classList.add('ativa');
+        }
+
+        // Voltar para o menu
+        function voltarAoMenu() {
+            mostrarTela(telaBemVindo);
+            clearInterval(intervaloRelogio);
+        }
+
+        // Voltar para seleção de modo
+        function voltarParaSelecaoModo() {
+            mostrarTela(telaBemVindo);
+            clearInterval(intervaloRelogio);
+        }
+
+        // Iniciar o jogo quando a página carregar
+        window.addEventListener('load', iniciar);
+    </script>
+</body>
+</html>

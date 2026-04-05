@@ -1,0 +1,726 @@
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.container {
+    background-color: white;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    width: 100%;
+    max-width: 800px;
+    padding: 30px;
+    text-align: center;
+    position: relative;
+}
+
+.screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+h1 {
+    color: #2575fc;
+    margin-bottom: 20px;
+    font-size: 2.2rem;
+}
+
+.instructions {
+    text-align: center;
+    margin-bottom: 30px;
+    line-height: 1.6;
+    font-size: 1.1rem;
+    color: #444;
+}
+
+.btn {
+    padding: 12px 30px;
+    background-color: #2575fc;
+    color: white;
+    border: none;
+    border-radius: 50px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-top: 20px;
+    display: inline-block; 
+}
+
+.btncontainer {
+
+    display: flex;
+    justify-content: space-between; /* Um na esquerda, outro na direita */
+    align-items: center;
+    width: 100%;
+
+}
+
+.menor {
+    padding: 12px 30px;
+    background-color: #fc2c25;
+    color: white;
+    border: none;
+    border-radius: 50px;
+    font-size: 1.0rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-top: 20px;
+}
+
+.btn:hover {
+    background-color: #0b5ed7;
+    transform: translateY(-3px);
+}
+
+.btn-success {
+    background-color: #198754;
+}
+
+.btn-success:hover {
+    background-color: #157347;
+}
+
+.game-info {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.info-box {
+    background-color: #f8f9fa;
+    padding: 10px 20px;
+    border-radius: 10px;
+    text-align: center;
+    flex: 1;
+    margin: 0 10px;
+}
+
+.info-label {
+    font-size: 0.9rem;
+    color: #6c757d;
+}
+
+.info-value {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #2575fc;
+}
+
+.timer {
+    width: 100%;
+    height: 15px;
+    background-color: #e9ecef;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    overflow: hidden;
+}
+
+.timer-progress {
+    height: 100%;
+    background-color: #20c997;
+    width: 100%;
+    transition: width 1s linear;
+}
+
+.game-area {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 20px;
+    gap: 10px;
+    position: relative;
+}
+
+.fixed-card {
+    width: 100px;
+    height: 150px;
+    background-color: #2575fc;
+    color: white;
+    border-radius: 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 3rem;
+    font-weight: bold;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.operation {
+    font-size: 2.5rem;
+    margin: 0 5px;
+}
+
+.current-card {
+    width: 100px;
+    height: 150px;
+    background-color: white;
+    border: 2px solid #2575fc;
+    border-radius: 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 2.5rem;
+    font-weight: bold;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.deck-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-left: 20px;
+}
+
+.deck {
+    width: 90px;
+    height: 135px;
+    background-color: #ff6b6b;
+    border-radius: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-size: 1.3rem;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: transform 0.3s;
+    position: relative;
+    overflow: hidden;
+}
+
+.deck::before {
+    content: "";
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    right: 8px;
+    bottom: 8px;
+    border: 2px dashed rgba(255, 255, 255, 0.5);
+    border-radius: 8px;
+}
+
+.deck:hover {
+    transform: translateY(-5px);
+}
+
+.options {
+    display: grid;
+    grid-template-columns: repeat(3, 2fr);
+    gap: 12px;
+    margin-bottom: 20px;
+    width: 100%;
+    margin-top: 10px;
+}
+
+.option {
+    background-color: #e9ecef;
+    border: none;
+    border-radius: 10px;
+    padding: 12px;
+    font-size: 1.5rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.option:hover {
+    background-color: #2575fc;
+    color: white;
+}
+
+.hidden {
+    display: none;
+}
+
+.result-screen {
+    text-align: center;
+    padding: 20px;
+}
+
+.result-title {
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+    color: #198754;
+}
+
+.lose {
+    color: #dc3545;
+}
+
+.result-stats {
+    font-size: 1.2rem;
+    margin-bottom: 30px;
+}
+
+.result-buttons {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+}
+
+@media (max-width: 768px) {
+    .options {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .game-area {
+        flex-wrap: wrap;
+    }
+    
+    .deck-container {
+        margin-left: 0;
+        margin-top: 15px;
+        width: 100%;
+    }
+    
+    .result-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+}
+
+.btn-config:hover {
+    background: linear-gradient(145deg, #5b4bc4, #8c4ed4);
+    transform: translateY(-2px);
+}
+
+.password-hint {
+    color: #666;
+    font-size: 0.9em;
+    margin: 5px 0 15px 0;
+    font-style: italic;
+}
+
+.level-btn:hover {
+    transform: scale(1.05);
+    background: linear-gradient(145deg, #2980b9, #3498db);
+}
+
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+}
+
+.modal .modal-content {
+    background: white;
+    padding: 30px;
+    border-radius: 20px;
+    max-width: 400px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
+.password-input {
+    width: 100%;
+    padding: 12px;
+    margin: 15px 0;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    font-size: 16px;
+    text-align: center;
+}
+
+.level-buttons {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+    margin: 20px 0;
+}
+
+.level-btn {
+    padding: 15px;
+    font-size: 18px;
+    font-weight: bold;
+    border: none;
+    border-radius: 10px;
+    background: linear-gradient(145deg, #3498db, #2980b9);
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.level-btn:hover {
+    transform: scale(1.05);
+    background: linear-gradient(145deg, #2980b9, #3498db);
+}
+
+.level-btn.selected {
+    background: linear-gradient(145deg, #27ae60, #2ecc71);
+    box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.3);
+}
+
+.time-control-btn {
+    width: 40px;
+    height: 40px;
+    font-size: 24px;
+    font-weight: bold;
+    border: none;
+    border-radius: 10px;
+    background: linear-gradient(145deg, #6c5ce7, #a463f5);
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.time-control-btn:hover {
+    transform: scale(1.1);
+}
+
+.time-input {
+    width: 80px;
+    height: 40px;
+    text-align: center;
+    font-size: 20px;
+    font-weight: bold;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 5px;
+}
+
+.time-input:focus {
+    outline: none;
+    border-color: #6c5ce7;
+}
+
+.modal.hidden {
+    display: none;
+}
+
+/* Estilos para estatísticas */
+.stats-title {
+    text-align: center;
+    color: #2c3e50;
+    margin-bottom: 30px;
+    font-size: 28px;
+}
+
+.stats-summary {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.stats-box {
+    background: linear-gradient(145deg, #f8f9fa, #e9ecef);
+    padding: 15px;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.stats-label {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 5px;
+}
+
+.stats-value {
+    font-size: 28px;
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+.stats-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    justify-content: center;
+    margin: 20px 0;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 10px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+}
+
+.legend-color {
+    width: 20px;
+    height: 20px;
+    border-radius: 5px;
+}
+
+.stats-list {
+    max-height: 400px;
+    overflow-y: auto;
+    margin: 20px 0;
+    border: 2px solid #e9ecef;
+    border-radius: 15px;
+    padding: 10px;
+}
+
+.stats-item {
+    display: grid;
+    grid-template-columns: 80px 1fr 80px 100px;
+    gap: 10px;
+    padding: 12px;
+    margin: 5px 0;
+    border-radius: 8px;
+    font-size: 16px;
+    align-items: center;
+}
+
+.stats-item.fast-correct {
+    background: rgba(40, 167, 69, 0.2);
+    border-left: 5px solid #28a745;
+}
+
+.stats-item.normal-correct {
+    background: rgba(23, 162, 184, 0.1);
+    border-left: 5px solid #17a2b8;
+}
+
+.stats-item.slow-correct {
+    background: rgba(255, 193, 7, 0.2);
+    border-left: 5px solid #ffc107;
+}
+
+.stats-item.wrong {
+    background: rgba(220, 53, 69, 0.1);
+    border-left: 5px solid #dc3545;
+}
+
+.stats-number {
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+.stats-question {
+    font-family: monospace;
+    font-size: 18px;
+}
+
+.stats-time {
+    font-family: monospace;
+    text-align: right;
+}
+
+.stats-result {
+    text-align: center;
+    font-weight: bold;
+}
+
+.stats-buttons {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-top: 30px;
+    flex-wrap: wrap;
+}
+
+.history-item {
+    background: #f8f9fa;
+    border-radius: 15px;
+    padding: 15px;
+    margin: 10px 0;
+    border-left: 5px solid #6c5ce7;
+}
+
+.history-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+.history-stats {
+    display: flex;
+    gap: 15px;
+    color: #666;
+    font-size: 14px;
+}
+
+.history-view-btn {
+    background: #6c5ce7;
+    color: white;
+    border: none;
+    padding: 5px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.history-view-btn:hover {
+    background: #5b4bc4;
+}
+
+/* ============================================
+   ESTILOS PARA IDENTIFICAÇÃO DO ALUNO (FALTANTES)
+   ============================================ */
+
+.aluno-identificacao {
+    background: linear-gradient(145deg, #f8f9fa, #e9ecef);
+    border-radius: 15px;
+    padding: 20px;
+    margin: 20px 0;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.aluno-identificacao h3 {
+    color: #2c3e50;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.selector-row {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.selector-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.selector-group label {
+    font-weight: bold;
+    color: #495057;
+    font-size: 1.1rem;
+}
+
+.selector-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+/* Botões de Ano e Turma */
+.ano-btn, .letra-btn {
+    padding: 12px 20px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    border: none;
+    border-radius: 10px;
+    background: linear-gradient(145deg, #6c5ce7, #a463f5);
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s;
+    min-width: 60px;
+}
+
+/* Grid para números da chamada */
+.numero-grid {
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    gap: 8px;
+    max-height: 200px;
+    overflow-y: auto;
+    padding: 10px;
+    background: white;
+    border-radius: 10px;
+    border: 1px solid #dee2e6;
+}
+
+/* Botões de número */
+.numero-btn {
+    padding: 10px;
+    font-size: 1rem;
+    font-weight: bold;
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+    background: linear-gradient(145deg, #00b894, #00cec9);
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+/* Hover effects */
+.ano-btn:hover, .letra-btn:hover, .numero-btn:hover {
+    transform: scale(1.05);
+    filter: brightness(1.1);
+}
+
+/* Estado selecionado */
+.ano-btn.selected, .letra-btn.selected, .numero-btn.selected {
+    box-shadow: 0 0 0 3px #ffc107;
+    filter: brightness(1.2);
+    border: 2px solid #ffc107;
+}
+
+/* Info do aluno após identificação */
+.aluno-info {
+    margin-top: 15px;
+    padding: 15px;
+    background: #d4edda;
+    border-radius: 10px;
+    text-align: center;
+    font-weight: bold;
+    color: #155724;
+    font-size: 1.2rem;
+    border: 1px solid #c3e6cb;
+}
+
+/* Botão de histórico (já existia no JS) */
+.btn-history {
+    background: linear-gradient(145deg, #e67e22, #f39c12);
+    color: white;
+}
+
+.btn-history:hover {
+    background: linear-gradient(145deg, #d35400, #e67e22);
+    transform: translateY(-2px);
+}
+
+/* Garantir que os botões de estatísticas tenham o estilo correto */
+.btn-stats {
+    background: linear-gradient(145deg, #00b894, #00cec9);
+    color: white;
+}
+
+.btn-config, .btn-stats, .btn-history {
+    color: white;
+    border: none;
+}
+
+.btn-config:hover, .btn-stats:hover {
+    transform: translateY(-2px);
+}
+
+.history-recover-btn {
+    background: #28a745;
+    color: white;
+    border: none;
+    padding: 5px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s;
+}
+
+.history-recover-btn:hover {
+    background: #218838;
+    transform: scale(1.05);
+}
