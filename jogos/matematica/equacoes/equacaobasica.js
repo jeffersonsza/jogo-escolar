@@ -6,7 +6,7 @@ function carregarCSSEquacoes() {
 }
 
 // Variáveis globais
-let baseTimeLimit = 40;
+let baseTimeLimit = 560;
 let correctAnswer = null;
 let correctAnswerFraction = null;
 let currentLevel = 1;
@@ -15,7 +15,7 @@ let gameActive = false;
 let remainingEquations = 20;
 let remainingTime = null;
 let score = 0;
-let timeLimit = 40;
+let timeLimit = 560;
 let timerInterval = null;
 let totalQuestions = 20;
 let errorCount = 0;
@@ -29,27 +29,27 @@ function configurarNiveis() {
     levelConfigs = {
         1: { 
             totalCards: 20, 
-            timeLimit: 40,
+            timeLimit: 560,
             description: "Equações básicas com adição e subtração" 
         },
         2: { 
             totalCards: 20, 
-            timeLimit: 30,
+            timeLimit: 560,
             description: "Coeficiente inteiro multiplicando a variável" 
         },
         3: { 
             totalCards: 18, 
-            timeLimit: 55,
+            timeLimit: 560,
             description: "Combinação de adição/subtração com coeficiente" 
         },
         4: { 
             totalCards: 18, 
-            timeLimit: 80,
+            timeLimit: 560,
             description: "Variáveis em ambos os lados e coeficientes negativos" 
         },
         5: { 
             totalCards: 16, 
-            timeLimit: 70,
+            timeLimit: 560,
             description: "Coeficientes fracionários e decimais" 
         }
     };
