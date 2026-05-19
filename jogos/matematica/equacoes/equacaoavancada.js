@@ -6,7 +6,7 @@ function carregarCSSEquacoes() {
 }
 
 // Variáveis globais
-let baseTimeLimit = 40;
+let baseTimeLimit = 2000;
 let correctAnswer = null;
 let correctAnswerFraction = null;
 let currentLevel = 6;
@@ -28,28 +28,28 @@ let levelConfigs = null;
 function configurarNiveis() {
     levelConfigs = {
         6: { 
-            totalCards: 13, 
-            timeLimit: 110,
+            totalCards: 10, 
+            timeLimit: 2000,
             description: "Variáveis em ambos os lados com frações" 
         },
         7: { 
-            totalCards: 11, 
-            timeLimit: 160,
+            totalCards: 10, 
+            timeLimit: 2000,
             description: "Uso de parênteses para agrupamento" 
         },
         8: { 
             totalCards: 10, 
-            timeLimit: 230,
+            timeLimit: 2000,
             description: "Combinação de frações, decimais e parênteses" 
         },
         9: { 
             totalCards: 10, 
-            timeLimit: 230,
+            timeLimit: 2000,
             description: "Problemas complexos com múltiplos elementos" 
         },
         10: { 
             totalCards: 10, 
-            timeLimit: 260,
+            timeLimit: 2000,
             description: "Desafio final - Todas as complexidades" 
         }
     };
